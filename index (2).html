@@ -1,0 +1,2579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JARVIS v11.0 · Voice Agent</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--h:#00e5ff;--hd:#006e88;--hg:rgba(0,229,255,.28);--bg:#02050a;--sf:rgba(0,229,255,.04);--br:rgba(0,229,255,.15);--tx:#7fd8ee;--ac:#8ab4f8}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto}
+body{font-family:'Share Tech Mono',monospace;background:var(--bg);color:var(--h);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:background .6s,color .6s;background-image:radial-gradient(ellipse 100% 55% at 50% 0%,rgba(0,229,255,.08) 0%,transparent 65%),repeating-linear-gradient(0deg,transparent,transparent 44px,rgba(0,229,255,.02) 44px,rgba(0,229,255,.02) 45px),repeating-linear-gradient(90deg,transparent,transparent 44px,rgba(0,229,255,.02) 44px,rgba(0,229,255,.02) 45px)}
+body.stealth{--h:#ff3333;--hd:#880000;--hg:rgba(255,51,51,.28);--bg:#050000;--sf:rgba(255,51,51,.04);--br:rgba(255,51,51,.15);--tx:#ffaaaa;--ac:#ff7777;background-image:radial-gradient(ellipse 100% 55% at 50% 0%,rgba(255,51,51,.08) 0%,transparent 65%),repeating-linear-gradient(0deg,transparent,transparent 44px,rgba(255,51,51,.02) 44px,rgba(255,51,51,.02) 45px),repeating-linear-gradient(90deg,transparent,transparent 44px,rgba(255,51,51,.02) 44px,rgba(255,51,51,.02) 45px)}
+body.ironman{--h:#ffd700;--hd:#9b7000;--hg:rgba(255,200,0,.42);--bg:#060300;--sf:rgba(255,215,0,.04);--br:rgba(255,215,0,.2);--tx:#ffdd88;--ac:#ff7733}
+body.quantum .ttl{animation:tp 4s ease-in-out infinite,qhue 4s linear infinite}
+body.quantum .ring1{animation:r1 2.5s linear infinite,qhue 5s linear infinite}
+@keyframes qhue{to{filter:hue-rotate(360deg)}}
+.scanline{position:fixed;top:0;left:0;width:100%;height:2px;background:linear-gradient(to right,transparent,var(--h),transparent);animation:scan 5s linear infinite;opacity:.22;pointer-events:none;z-index:300}
+@keyframes scan{0%{top:0}100%{top:100%}}
+.c{position:fixed;width:32px;height:32px;border-color:rgba(0,229,255,.15);border-style:solid;pointer-events:none}
+.c.tl{top:12px;left:12px;border-width:2px 0 0 2px}.c.tr{top:12px;right:12px;border-width:2px 2px 0 0}
+.c.bl{bottom:12px;left:12px;border-width:0 0 2px 2px}.c.br{bottom:12px;right:12px;border-width:0 2px 2px 0}
+body.stealth .c{border-color:rgba(255,51,51,.15)}
+.hud{display:flex;flex-direction:column;align-items:center;gap:7px;width:100%;max-width:430px;padding:.9rem;position:relative;z-index:10}
+.ttl{font-family:'Orbitron',monospace;font-size:19px;font-weight:900;letter-spacing:9px;text-shadow:0 0 28px var(--hg),0 0 55px rgba(0,229,255,.07);color:var(--h);animation:tp 4s ease-in-out infinite;transition:color .6s,text-shadow .6s}
+@keyframes tp{0%,100%{opacity:1}50%{opacity:.82}}
+.ttl.glitch{animation:tp 4s ease-in-out infinite,glk .12s linear infinite}
+@keyframes glk{25%{transform:translateX(-3px) skew(-2deg);filter:hue-rotate(90deg)}50%{transform:translateX(3px);filter:hue-rotate(180deg)}75%{transform:translateX(-2px);filter:hue-rotate(270deg)}}
+.clk{font-size:25px;letter-spacing:4px;color:var(--ac);text-shadow:0 0 10px rgba(138,180,248,.4);transition:color .6s}
+.wrap{position:relative;width:175px;height:175px;display:flex;align-items:center;justify-content:center;cursor:pointer;margin:3px 0;flex-shrink:0}
+.orbit{position:absolute;width:173px;height:173px;border:1px solid rgba(0,229,255,.07);border-radius:50%;transition:border-color .6s}
+.ring1{width:140px;height:140px;border:3px dashed var(--h);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;box-shadow:0 0 40px var(--hg),inset 0 0 15px rgba(0,229,255,.04);animation:r1 14s linear infinite;transition:border-color .6s,box-shadow .6s}
+.ring2{width:90px;height:90px;border:2.5px dashed var(--hd);border-radius:50%;position:absolute;animation:r2 6s linear infinite reverse;transition:border-color .6s}
+.dot{width:26px;height:26px;background:var(--h);border-radius:50%;box-shadow:0 0 25px var(--h),0 0 50px var(--hg);z-index:2;transition:background .6s,box-shadow .6s}
+@keyframes r1{to{transform:rotate(360deg)}}@keyframes r2{to{transform:rotate(360deg)}}
+.listening .ring1{border-color:#00ffaa;border-style:solid;animation:r1 3s linear infinite;box-shadow:0 0 55px rgba(0,255,170,.35)}
+.listening .ring2{border-color:#00cc88}
+.listening .dot{background:#00ffaa;box-shadow:0 0 30px #00ffaa;animation:dp .7s ease-in-out infinite}
+@keyframes dp{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+.ai-thinking .ring1{animation:r1 1.5s linear infinite;border-color:#a855f7;box-shadow:0 0 55px rgba(168,85,247,.4)}
+.ai-thinking .dot{background:#a855f7;box-shadow:0 0 30px #a855f7}
+.st{font-size:11px;letter-spacing:.07em;color:var(--tx);min-height:16px;text-align:center;transition:color .6s;max-width:380px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.resp{width:100%;max-width:385px;border:1px solid var(--br);background:var(--sf);padding:7px 11px;position:relative;transition:border-color .6s,background .6s;min-height:48px}
+.resp::before{content:'JARVIS://';display:block;font-family:'Orbitron',monospace;font-size:7.5px;letter-spacing:.2em;color:var(--hd);margin-bottom:4px;transition:color .6s}
+#rt{font-size:11.5px;line-height:1.55;color:var(--h);white-space:pre-wrap;word-break:break-word;max-height:65px;overflow-y:auto;transition:color .6s}
+.inp{display:flex;align-items:center;width:100%;max-width:385px;border:1px solid var(--br);background:var(--sf);padding:6px 12px;border-radius:2px;transition:border-color .3s,background .6s}
+.inp:focus-within{border-color:var(--h);box-shadow:0 0 12px var(--hg)}
+.pfx{font-family:'Orbitron',monospace;font-size:9px;color:var(--hd);margin-right:6px;user-select:none;transition:color .6s}
+input.cmd{background:transparent;border:none;color:var(--h);font-family:'Share Tech Mono',monospace;font-size:13px;outline:none;width:100%;caret-color:var(--h);transition:color .6s}
+input.cmd::placeholder{color:var(--hd);opacity:.5}
+.meta{display:flex;width:100%;max-width:385px;border-top:1px solid var(--br);padding-top:5px;justify-content:space-between;align-items:center;transition:border-color .6s}
+.meta span,.meta button{font-size:9px;letter-spacing:.1em;color:var(--hd);transition:color .6s;background:none;border:none;cursor:pointer;font-family:'Share Tech Mono',monospace;padding:0}
+.meta button:hover{color:var(--h)}
+.egg-badge{display:none;font-family:'Orbitron',monospace;font-size:8px;letter-spacing:.15em;color:#a0ff80;border:1px solid rgba(160,255,128,.3);padding:2px 6px;border-radius:2px;cursor:pointer}
+.egg-badge.show{display:inline-block;animation:bk 1.5s step-end infinite}
+.blink{animation:bk 1s step-end infinite}@keyframes bk{0%,100%{opacity:1}50%{opacity:0}}
+/* TIMER */
+.tov{display:none;position:fixed;inset:0;background:rgba(2,5,10,.92);z-index:250;flex-direction:column;align-items:center;justify-content:center;gap:14px;backdrop-filter:blur(5px)}
+.tov.on{display:flex}
+.tlab{font-family:'Orbitron',monospace;font-size:10px;letter-spacing:.25em;color:var(--hd);text-align:center}
+.tring{position:relative;width:200px;height:200px;display:flex;align-items:center;justify-content:center}
+.tsvg{position:absolute;top:0;left:0;transform:rotate(-90deg)}
+.ttrack{fill:none;stroke:rgba(0,229,255,.1);stroke-width:5}
+.tarc{fill:none;stroke:var(--h);stroke-width:5;stroke-linecap:round;transition:stroke-dashoffset 1s linear,stroke .6s}
+.ttime{font-family:'Orbitron',monospace;font-size:42px;font-weight:700;color:var(--h);text-shadow:0 0 28px var(--hg);z-index:2;letter-spacing:2px;transition:color .6s}
+.ttask{font-size:11px;color:var(--tx);text-align:center;max-width:220px;transition:color .6s}
+.tbtn{background:var(--sf);border:1px solid var(--br);color:var(--h);cursor:pointer;padding:7px 22px;font-family:'Orbitron',monospace;font-size:9px;letter-spacing:.2em;border-radius:2px;transition:all .2s}
+.tbtn:hover{border-color:var(--h);box-shadow:0 0 12px var(--hg)}
+/* PANEL */
+.panel{display:none;position:fixed;top:0;right:0;width:265px;height:100%;background:rgba(2,5,10,.97);border-left:1px solid var(--br);z-index:280;padding:12px;overflow-y:auto;backdrop-filter:blur(8px)}
+.panel.on{display:block}.phead{font-family:'Orbitron',monospace;font-size:10px;letter-spacing:.22em;color:var(--h);border-bottom:1px solid var(--br);padding-bottom:7px;margin-bottom:9px;display:flex;justify-content:space-between;align-items:center}
+.pclose{background:none;border:1px solid var(--br);color:var(--hd);cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:9px;padding:2px 6px;transition:all .2s}.pclose:hover{border-color:var(--h);color:var(--h)}
+.pcat{font-family:'Orbitron',monospace;font-size:7.5px;letter-spacing:.18em;color:var(--hd);margin:7px 0 3px;border-left:2px solid var(--hd);padding-left:5px}
+.pcmd{display:flex;justify-content:space-between;padding:2.5px 0;border-bottom:1px solid rgba(0,229,255,.05);gap:6px}
+.pk{font-size:9.5px;color:var(--h);font-style:italic;flex-shrink:0}.pd{font-size:8.5px;color:var(--tx);text-align:right;flex:1;line-height:1.35}
+.pegg{color:#a0ff80!important}
+/* AI SETUP */
+.aiov{display:none;position:fixed;inset:0;background:rgba(2,5,10,.95);z-index:350;flex-direction:column;align-items:center;justify-content:center;gap:14px;backdrop-filter:blur(6px)}
+.aiov.on{display:flex}
+.aiov h2{font-family:'Orbitron',monospace;font-size:13px;letter-spacing:.25em;color:var(--h);text-align:center}
+.aiov p{font-size:11px;color:var(--tx);text-align:center;max-width:280px;line-height:1.6}
+.aiov input{background:var(--sf);border:1px solid var(--br);color:var(--h);font-family:'Share Tech Mono',monospace;font-size:12px;padding:8px 12px;width:280px;outline:none;border-radius:2px}
+.aiov input:focus{border-color:var(--h)}
+.aiov .abtn{background:var(--sf);border:1px solid var(--h);color:var(--h);cursor:pointer;padding:8px 24px;font-family:'Orbitron',monospace;font-size:9px;letter-spacing:.2em;border-radius:2px}
+.aiov .abtn:hover{box-shadow:0 0 12px var(--hg)}
+.aiov .skip{background:none;border:none;color:var(--hd);cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:10px}
+/* EASTER EGG OVERLAYS */
+.egm{display:none;position:fixed;inset:0;z-index:500;background:#000}
+.egm.on{display:block}#mcv{width:100%;height:100%}
+.egd{display:none;position:fixed;inset:0;z-index:400;pointer-events:none}
+.egd.on{display:block;animation:dfl .45s ease-in-out infinite}
+@keyframes dfl{0%,100%{box-shadow:inset 0 0 80px rgba(255,0,0,.35);background:rgba(200,0,0,.09)}50%{box-shadow:none;background:rgba(255,0,0,.02)}}
+.egdm{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Orbitron',monospace;font-size:13px;color:#ff2020;letter-spacing:.2em;text-shadow:0 0 20px #f00;text-align:center;line-height:2.4;z-index:401;pointer-events:none;display:none}
+.egdm.on{display:block;animation:dfl .45s ease-in-out infinite}
+.egb{display:none;position:fixed;inset:0;z-index:450;background:#000;pointer-events:none}
+.egb.on{display:block;animation:ban 3s ease forwards}@keyframes ban{0%{opacity:0}12%,78%{opacity:1}100%{opacity:0}}
+.egg{display:none;position:fixed;inset:0;z-index:360;background:rgba(0,0,0,.68);pointer-events:none}
+.egg.on{display:block}
+.egw{display:none;position:fixed;inset:0;z-index:380;background:#000;overflow:hidden;pointer-events:none}
+.egw.on{display:block}
+.wln{position:absolute;width:1px;background:linear-gradient(to bottom,transparent,#00e5ff 50%,transparent);animation:wsh .55s linear;transform-origin:0 0}@keyframes wsh{from{height:0;opacity:1}to{height:120vh;opacity:0}}
+/* OFF HINT */
+.off-hint{display:none;position:fixed;bottom:18px;left:50%;transform:translateX(-50%);font-family:'Orbitron',monospace;font-size:8.5px;letter-spacing:.18em;color:rgba(160,255,128,.7);border:1px solid rgba(160,255,128,.25);padding:4px 14px;border-radius:2px;z-index:490;pointer-events:none;backdrop-filter:blur(4px)}
+.off-hint.show{display:block;animation:bk 2s step-end infinite}
+
+
+
+/* v11 VOICE */
+.vlock{display:none;position:fixed;top:32px;left:50%;transform:translateX(-50%);font-family:'Orbitron',monospace;font-size:7px;letter-spacing:.18em;color:#ffd700;border:1px solid rgba(255,215,0,.4);padding:3px 10px;border-radius:2px;background:rgba(255,215,0,.05);z-index:200;white-space:nowrap}
+.vlock.on{display:block;animation:bk 2.5s step-end infinite}
+.enrollov{display:none;position:fixed;inset:0;background:rgba(2,5,10,.97);z-index:480;flex-direction:column;align-items:center;justify-content:center;gap:14px;backdrop-filter:blur(8px);padding:20px;color:var(--hd);font-family:'Share Tech Mono',monospace;text-align:center}
+.enrollov.on{display:flex}
+.enrollov h2{font-family:'Orbitron',monospace;font-size:14px;letter-spacing:.3em;color:var(--h);margin:0}
+.enrollov p{max-width:420px;font-size:11px;letter-spacing:.05em;opacity:.85;margin:0}
+.enrollov .vumeter{width:280px;height:14px;border:1px solid var(--br);position:relative;overflow:hidden;background:rgba(0,229,255,.04)}
+.enrollov .vumeter span{position:absolute;left:0;top:0;bottom:0;width:0%;background:linear-gradient(to right,#00e5ff,#00ffaa);transition:width .08s linear}
+.enrollov .ebtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.enrollov button{background:rgba(0,229,255,.06);border:1px solid var(--br);color:var(--hd);cursor:pointer;padding:8px 18px;font-family:'Orbitron',monospace;font-size:9px;letter-spacing:.2em;border-radius:2px;transition:all .2s}
+.enrollov button:hover{border-color:var(--h);color:var(--h);box-shadow:0 0 12px var(--hg)}
+.enrollov button.danger{border-color:rgba(255,80,80,.5);color:#ff8888}
+.enrollov .phrase{font-family:'Orbitron',monospace;font-size:13px;letter-spacing:.18em;color:#00ffaa;border:1px dashed rgba(0,255,170,.4);padding:10px 22px;border-radius:2px;margin:4px 0}
+.enrollov small{font-size:9px;opacity:.6;letter-spacing:.1em}
+
+/* v10 VISION */
+.detov{position:absolute;inset:0;pointer-events:none}
+.detov canvas{position:absolute;inset:0;width:100%;height:100%}
+.visbtns{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:480px}
+.visbtn{background:rgba(0,229,255,.06);border:1px solid var(--br);color:var(--hd);cursor:pointer;padding:6px 12px;font-family:'Orbitron',monospace;font-size:8.5px;letter-spacing:.18em;border-radius:2px;transition:all .2s}
+.visbtn:hover{border-color:var(--h);color:var(--h);box-shadow:0 0 12px var(--hg)}
+.visbtn.on{background:rgba(0,229,255,.15);border-color:var(--h);color:var(--h)}
+.detlabel{position:absolute;font-family:'Share Tech Mono',monospace;font-size:10px;color:#00e5ff;background:rgba(0,20,30,.75);padding:1px 5px;border:1px solid rgba(0,229,255,.6);text-shadow:0 0 4px #00e5ff;pointer-events:none;white-space:nowrap}
+.vistoast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(0,20,30,.92);border:1px solid var(--h);color:var(--h);padding:8px 16px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.1em;z-index:500;border-radius:2px;box-shadow:0 0 20px var(--hg);display:none;max-width:80vw;text-align:center}
+.vistoast.on{display:block;animation:fadein .3s}
+@keyframes fadein{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* CAM VISION */
+.camov{display:none;position:fixed;inset:0;background:rgba(2,5,10,.97);z-index:400;flex-direction:column;align-items:center;justify-content:center;gap:12px;backdrop-filter:blur(8px)}
+.camov.on{display:flex}
+.camhdr{width:100%;max-width:480px;display:flex;justify-content:space-between;align-items:center;font-family:'Orbitron',monospace;font-size:9px;letter-spacing:.2em;color:var(--h);border-bottom:1px solid var(--br);padding-bottom:8px}
+.camhdr button{background:none;border:1px solid var(--br);color:var(--hd);cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:9px;padding:3px 8px;transition:all .2s}
+.camhdr button:hover{border-color:var(--h);color:var(--h)}
+.camwrap{position:relative;border:1px solid var(--br);overflow:hidden;max-width:420px;width:90vw}
+.camwrap video{display:block;width:100%;max-height:300px;object-fit:cover}
+.camscanline{position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,var(--h),transparent);animation:scan 2.5s linear infinite;opacity:.6;pointer-events:none}
+.camcorner{position:absolute;width:20px;height:20px;border-color:var(--h);border-style:solid;opacity:.7}
+.camcorner.tl{top:8px;left:8px;border-width:2px 0 0 2px}.camcorner.tr{top:8px;right:8px;border-width:2px 2px 0 0}
+.camcorner.bl{bottom:8px;left:8px;border-width:0 0 2px 2px}.camcorner.br{bottom:8px;right:8px;border-width:0 2px 2px 0}
+.scanbtn{background:var(--sf);border:2px solid var(--h);color:var(--h);cursor:pointer;padding:9px 32px;font-family:'Orbitron',monospace;font-size:10px;letter-spacing:.25em;border-radius:2px;transition:all .2s;box-shadow:0 0 18px var(--hg)}
+.scanbtn:hover{background:rgba(0,229,255,.08);box-shadow:0 0 35px var(--hg)}
+.scanbtn:disabled{opacity:.5;cursor:default}
+/* WAKE WORD */
+.wakeind{display:none;position:fixed;top:10px;left:50%;transform:translateX(-50%);font-family:'Orbitron',monospace;font-size:7px;letter-spacing:.18em;color:#00ffaa;border:1px solid rgba(0,255,170,.35);padding:3px 10px;border-radius:2px;background:rgba(0,255,170,.06);z-index:200;white-space:nowrap}
+.wakeind.on{display:block;animation:bk 2.5s step-end infinite}
+/* WEATHER */
+.wxbadge{font-size:9px;letter-spacing:.06em;color:var(--ac);cursor:pointer;transition:color .2s}
+.wxbadge:hover{color:var(--h)}
+/* MEMORY */
+.memov{display:none;position:fixed;inset:0;background:rgba(2,5,10,.95);z-index:390;flex-direction:column;align-items:center;justify-content:center;gap:10px;backdrop-filter:blur(6px)}
+.memov.on{display:flex}
+.memov h2{font-family:'Orbitron',monospace;font-size:12px;letter-spacing:.25em;color:var(--h)}
+.membox{width:300px;max-height:260px;overflow-y:auto;border:1px solid var(--br);background:var(--sf);padding:10px;font-size:10px;line-height:1.6;color:var(--tx)}
+.membox b{color:var(--h);display:block;margin-top:6px;font-family:'Orbitron',monospace;font-size:7px;letter-spacing:.15em}
+.memov button{background:var(--sf);border:1px solid var(--br);color:var(--hd);cursor:pointer;padding:5px 14px;font-family:'Share Tech Mono',monospace;font-size:9px;transition:all .2s}
+.memov button:hover{border-color:var(--h);color:var(--h)}
+/* WAKE CONFIG */
+.wkcov{display:none;position:fixed;inset:0;background:rgba(2,5,10,.95);z-index:390;flex-direction:column;align-items:center;justify-content:center;gap:12px;backdrop-filter:blur(6px)}
+.wkcov.on{display:flex}
+.wkcov h2{font-family:'Orbitron',monospace;font-size:12px;letter-spacing:.22em;color:var(--h)}
+.wkcov p{font-size:10px;color:var(--tx);text-align:center;max-width:280px;line-height:1.6}
+.wkcov input{background:var(--sf);border:1px solid var(--br);color:var(--h);font-family:'Share Tech Mono',monospace;font-size:12px;padding:8px 12px;width:260px;outline:none;border-radius:2px;text-align:center}
+.wkcov input:focus{border-color:var(--h)}
+.wkcov .abtn{background:var(--sf);border:1px solid var(--h);color:var(--h);cursor:pointer;padding:7px 22px;font-family:'Orbitron',monospace;font-size:9px;letter-spacing:.2em;border-radius:2px}
+.wkcov .skip{background:none;border:none;color:var(--hd);cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:9px;padding:0}
+
+/* EXPORT / IMPORT OVERLAY */
+.exov{display:none;position:fixed;inset:0;background:rgba(2,5,10,.95);z-index:410;flex-direction:column;align-items:center;justify-content:center;gap:12px;backdrop-filter:blur(8px)}
+.exov.on{display:flex}
+.exov h2{font-family:'Orbitron',monospace;font-size:12px;letter-spacing:.25em;color:var(--h)}
+.exov p{font-size:10px;color:var(--tx);text-align:center;max-width:300px;line-height:1.7}
+.exov .exbtns{display:flex;flex-direction:column;gap:8px;width:260px}
+.exov .ebtn{background:var(--sf);border:1px solid var(--h);color:var(--h);cursor:pointer;padding:9px;font-family:'Orbitron',monospace;font-size:9px;letter-spacing:.2em;border-radius:2px;transition:all .2s;text-align:center}
+.exov .ebtn:hover{background:rgba(0,229,255,.1);box-shadow:0 0 12px var(--hg)}
+.exov .ebtn.sec{border-color:var(--br);color:var(--hd)}
+.exov .ebtn.sec:hover{border-color:var(--h);color:var(--h)}
+.exov .skip{background:none;border:none;color:var(--hd);cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:9px;padding:4px 0}
+
+/* NAME PROMPT OVERLAY */
+.nmov{display:none;position:fixed;inset:0;background:rgba(2,5,10,.97);z-index:500;flex-direction:column;align-items:center;justify-content:center;gap:14px;backdrop-filter:blur(8px)}
+.nmov.on{display:flex}
+.nmov h2{font-family:'Orbitron',monospace;font-size:13px;letter-spacing:.3em;color:var(--h);text-align:center}
+.nmov p{font-size:10.5px;color:var(--tx);text-align:center;max-width:280px;line-height:1.7}
+.nmov input{background:var(--sf);border:1px solid var(--br);color:var(--h);font-family:'Share Tech Mono',monospace;font-size:14px;padding:9px 14px;width:260px;outline:none;border-radius:2px;text-align:center;letter-spacing:.05em}
+.nmov input:focus{border-color:var(--h);box-shadow:0 0 12px var(--hg)}
+.nmov .abtn{background:var(--sf);border:1px solid var(--h);color:var(--h);cursor:pointer;padding:8px 28px;font-family:'Orbitron',monospace;font-size:9px;letter-spacing:.22em;border-radius:2px;transition:all .2s}
+.nmov .abtn:hover{background:rgba(0,229,255,.1);box-shadow:0 0 14px var(--hg)}
+
+/* ── SETTINGS OVERLAY ── */
+.setov{display:none;position:fixed;inset:0;background:rgba(2,5,10,.97);z-index:480;flex-direction:column;align-items:center;justify-content:flex-start;gap:0;backdrop-filter:blur(10px);overflow-y:auto;padding:24px 16px}
+.setov.on{display:flex}
+.sethdr{width:100%;max-width:370px;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--br)}
+.sethdr h2{font-family:'Orbitron',monospace;font-size:11px;letter-spacing:.3em;color:var(--h)}
+.sethdr button{background:none;border:1px solid var(--br);color:var(--hd);cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:9px;padding:3px 9px;transition:all .2s}
+.sethdr button:hover{border-color:var(--h);color:var(--h)}
+.setbody{width:100%;max-width:370px;display:flex;flex-direction:column;gap:5px}
+.setcat{font-family:'Orbitron',monospace;font-size:7px;letter-spacing:.22em;color:var(--hd);border-left:2px solid var(--hd);padding-left:6px;margin:10px 0 4px;text-transform:uppercase}
+.setrow{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--br);background:var(--sf);gap:12px;transition:border-color .2s}
+.setrow:hover{border-color:rgba(0,229,255,.3)}
+.setlbl{display:flex;flex-direction:column;gap:3px;flex:1}
+.setlbl span{font-size:10px;color:var(--h);letter-spacing:.04em}
+.setlbl small{font-size:8px;color:var(--hd);line-height:1.45}
+.tog{position:relative;width:40px;height:20px;flex-shrink:0}
+.tog input{opacity:0;width:0;height:0;position:absolute}
+.togsl{position:absolute;inset:0;background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.2);border-radius:10px;cursor:pointer;transition:all .3s}
+.togsl::before{content:'';position:absolute;width:14px;height:14px;top:2px;left:2px;background:var(--hd);border-radius:50%;transition:all .3s}
+.tog input:checked+.togsl{background:rgba(0,229,255,.18);border-color:var(--h);box-shadow:0 0 8px var(--hg)}
+.tog input:checked+.togsl::before{transform:translateX(20px);background:var(--h)}
+.setsel{background:rgba(0,229,255,.04);border:1px solid var(--br);color:var(--h);font-family:'Share Tech Mono',monospace;font-size:10px;padding:5px 8px;border-radius:2px;outline:none;cursor:pointer;min-width:88px;transition:border-color .2s}
+.setsel:hover,.setsel:focus{border-color:var(--h)}
+.setrng{-webkit-appearance:none;appearance:none;width:100px;height:3px;background:rgba(0,229,255,.15);border-radius:2px;outline:none;cursor:pointer;flex-shrink:0}
+.setrng::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--h);box-shadow:0 0 5px var(--hg);cursor:pointer;border:none}
+.setrng::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:var(--h);box-shadow:0 0 5px var(--hg);cursor:pointer;border:none}
+.setrngval{font-family:'Orbitron',monospace;font-size:8px;color:var(--ac);min-width:30px;text-align:right;flex-shrink:0}
+.setfooter{width:100%;max-width:370px;display:flex;gap:8px;margin-top:16px;padding-top:12px;border-top:1px solid var(--br)}
+.setfooter button{flex:1;padding:9px 4px;font-family:'Orbitron',monospace;font-size:8.5px;letter-spacing:.18em;border-radius:2px;cursor:pointer;transition:all .2s}
+.sbtn-save{background:rgba(0,229,255,.1);border:1px solid var(--h);color:var(--h)}
+.sbtn-save:hover{background:rgba(0,229,255,.2);box-shadow:0 0 14px var(--hg)}
+.sbtn-reset{background:var(--sf);border:1px solid var(--br);color:var(--hd)}
+.sbtn-reset:hover{border-color:rgba(0,229,255,.4);color:var(--h)}
+
+/* ═══ MOBILE RESPONSIVE ═══ */
+@media (max-width:480px){
+  .hud{padding:.6rem;gap:5px}
+  .ttl{font-size:14px;letter-spacing:5px}
+  .clk{font-size:19px;letter-spacing:2px}
+  .wrap{width:130px;height:130px}
+  .orbit{width:128px;height:128px}
+  .ring1{width:104px;height:104px}
+  .ring2{width:67px;height:67px}
+  .dot{width:19px;height:19px}
+  .st{font-size:10px;max-width:94vw}
+  .resp,.inp,.meta{max-width:94vw}
+  #rt{font-size:11px;max-height:90px}
+  .meta{flex-wrap:wrap;gap:4px 8px;justify-content:center}
+  .c{width:20px;height:20px}
+  /* Command panel becomes a full-width slide-in drawer instead of a fixed sidebar */
+  .panel{width:100%;max-width:100%}
+  /* Overlay content boxes shrink to fit narrow screens instead of overflowing */
+  .membox{width:88vw;max-width:300px}
+  .wkcov input,.exov .exbtns,.nmov input{width:84vw;max-width:260px}
+  .sethdr,.setbody,.setfooter{max-width:94vw}
+  .ttime{font-size:32px}
+  .tring{width:160px;height:160px}
+  .camwrap{width:94vw}
+}
+@media (max-width:340px){
+  .ttl{font-size:12px;letter-spacing:3px}
+  .wrap{width:110px;height:110px}
+  .orbit{width:108px;height:108px}
+  .ring1{width:88px;height:88px}
+  .ring2{width:56px;height:56px}
+}
+</style></head>
+<body>
+<div class="scanline"></div>
+<div class="c tl"></div><div class="c tr"></div><div class="c bl"></div><div class="c br"></div>
+<!-- EGG OVERLAYS -->
+<div class="egm" id="egM"><canvas id="mcv"></canvas></div>
+<div class="egd" id="egD"></div>
+<div class="egdm" id="egDm">&#9888; PROTOCOL DELTA ENGAGED<br>THREAT LEVEL: CRITICAL<br>ALL DEFENSIVE SYSTEMS ARMED</div>
+<div class="egb" id="egB"></div>
+<div class="egg" id="egG"></div>
+<!-- AR OVERLAY -->
+<div id="arContainer" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:9998;background:#000;">
+  <video id="arVideo" style="width:100%;height:100%;display:block;"></video>
+  <canvas id="arCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%;"></canvas>
+  <div id="arHUD" style="position:absolute;top:10px;left:10px;color:#0f0;font-family:monospace;font-size:12px;z-index:9999;pointer-events:none;">
+    <div id="arMode">TACTICAL OVERLAY</div>
+    <div id="arFPS">FPS: 0</div>
+  </div>
+  <button id="arClose" style="position:absolute;top:10px;right:10px;z-index:10000;padding:10px 20px;background:#ff0000;color:#fff;border:none;cursor:pointer;font-weight:bold;">CLOSE AR</button>
+</div>
+<div class="egw" id="egW"></div>
+<div class="off-hint" id="offHint">type "off" to deactivate</div>
+<!-- TIMER -->
+<div class="tov" id="tOv">
+  <div class="tlab" id="tLab">MATRIX COUNTDOWN</div>
+  <div class="tring">
+    <svg class="tsvg" width="200" height="200" viewBox="0 0 200 200">
+      <circle class="ttrack" cx="100" cy="100" r="92"/>
+      <circle class="tarc" id="tArc" cx="100" cy="100" r="92" stroke-dasharray="578.05" stroke-dashoffset="0"/>
+    </svg>
+    <div class="ttime" id="tDisp">00:00</div>
+  </div>
+  <div class="ttask" id="tTask"></div>
+  <button class="tbtn" onclick="stopTimer()">TERMINATE SEQUENCE</button>
+</div>
+<!-- PANEL -->
+<div class="panel" id="panel">
+  <div class="phead">CMD REFERENCE<button class="pclose" onclick="togglePanel()">CLOSE</button></div>
+  <div id="panelBody"></div>
+</div>
+<!-- AI SETUP -->
+<div class="aiov" id="aiOv">
+  <h2>NEURAL AI MATRIX</h2>
+  <p>Enter your OpenAI API key to enable full AI responses for unknown commands. Stored locally on your device only.</p>
+  <input id="apiKeyInp" type="password" placeholder="sk-...your-openai-key...">
+  <button class="abtn" onclick="saveAIKey()">INITIALIZE NEURAL MATRIX</button>
+  <button class="skip" onclick="document.getElementById('aiOv').classList.remove('on')">Skip for now</button>
+</div>
+<!-- NAME PROMPT (first run) -->
+<div class="nmov" id="nmOv">
+  <h2>IDENTITY PROTOCOL</h2>
+  <p>I am J.A.R.V.I.S.<br>What shall I call you, Sir?</p>
+  <input id="nmInp" type="text" placeholder="Enter your name..." autocomplete="off"
+         onkeydown="if(event.key==='Enter')saveUserName()">
+  <button class="abtn" onclick="saveUserName()">CONFIRM IDENTITY</button>
+</div>
+
+<!-- WAKE WORD INDICATOR -->
+<div class="wakeind" id="wakeInd">&#9679; WAKE WORD ARMED</div>
+<div class="vlock" id="vLock">&#9679; VOICE LOCK ACTIVE</div>
+<div class="enrollov" id="enrollOv">
+  <h2>&#9673; VOICEPRINT ENROLLMENT</h2>
+  <p>Speak the phrase below three times, naturally. Your acoustic signature will be stored locally on this device only.</p>
+  <div class="phrase" id="enrollPhrase">"My voice is my passport, verify me."</div>
+  <div class="vumeter"><span id="enrollVU"></span></div>
+  <p id="enrollStatus" style="min-height:30px;color:var(--h)">Ready when you are.</p>
+  <div class="ebtns">
+    <button id="enrollRecBtn" onclick="enrollCapture()">&#9679; RECORD SAMPLE 1/3</button>
+    <button onclick="closeEnroll()">CLOSE</button>
+    <button class="danger" onclick="clearVoiceprint()">DELETE VOICEPRINT</button>
+  </div>
+  <small>Powered by spectral fingerprinting · cosine similarity</small>
+</div>
+
+<!-- CAMERA VISION -->
+<div class="camov" id="camOv">
+  <div class="camhdr"><span>&#9673; VISION SYSTEM ONLINE</span><button onclick="deactivateCameraVision()">CLOSE</button></div>
+  <div class="camwrap">
+    <video id="camVid" autoplay playsinline muted></video>
+    <div class="detov" id="detOv"><canvas id="detCvs"></canvas></div>
+    <div class="camscanline"></div>
+    <div class="camcorner tl"></div><div class="camcorner tr"></div>
+    <div class="camcorner bl"></div><div class="camcorner br"></div>
+  </div>
+  <canvas id="camCanvas" style="display:none"></canvas>
+  <button id="scanBtn" class="scanbtn" onclick="scanAndAnalyze()">&#9654; SCAN &amp; ANALYZE</button>
+  <div class="visbtns">
+    <button class="visbtn" id="btnDetect" onclick="toggleObjectDetection()">&#9673; DETECT OBJECTS</button>
+    <button class="visbtn" id="btnFace" onclick="toggleFaceDetection()">&#9673; FACES</button>
+    <button class="visbtn" id="btnOcr" onclick="runOCR()">&#9673; READ TEXT</button>
+    <button class="visbtn" id="btnQr" onclick="toggleQRScan()">&#9673; QR / BARCODE</button>
+  </div>
+</div>
+<div class="vistoast" id="visToast"></div>
+
+<!-- MEMORY -->
+<div class="memov" id="memOv">
+  <h2>&#9632; MEMORY BANKS</h2>
+  <div class="membox" id="memBox"></div>
+  <div style="display:flex;gap:8px">
+    <button onclick="document.getElementById('memOv').classList.remove('on')">CLOSE</button>
+    <button onclick="if(confirm('Wipe all JARVIS memory?')){userProfile={facts:[],name:'Sir',interactionCount:0};saveProfile();ss('jsummaries',[]);resp('Memory wiped.','All data cleared.','Memory banks cleared, Sir.');document.getElementById('memOv').classList.remove('on');}">WIPE ALL</button>
+  </div>
+</div>
+
+<!-- WAKE CONFIG -->
+<div class="wkcov" id="wkCov">
+  <h2>&#9673; WAKE WORD CONFIG</h2>
+  <p>Enter your custom wake phrase.<br>Default: <em>hey jarvis</em></p>
+  <input id="wkInp" placeholder="hey jarvis" autocomplete="off">
+  <div style="display:flex;gap:8px">
+    <button class="abtn" onclick="saveWakePhrase()">SAVE PHRASE</button>
+    <button class="skip" onclick="document.getElementById('wkCov').classList.remove('on')">Cancel</button>
+  </div>
+</div>
+
+<!-- EXPORT / IMPORT OVERLAY -->
+<div class="exov" id="exOv">
+  <h2>&#9660; DATA ARCHIVE</h2>
+  <p>Export all JARVIS memory, profile, session summaries and wake phrase as a <em>.json</em> file — or restore from a previous export.</p>
+  <div class="exbtns">
+    <button class="ebtn" onclick="exportProfile()">&#9660; EXPORT jarvis_profile.json</button>
+    <label class="ebtn sec" style="cursor:pointer">
+      &#9650; IMPORT FROM .json FILE
+      <input type="file" accept=".json" style="display:none" onchange="importProfile(event)">
+    </label>
+  </div>
+  <button class="skip" onclick="document.getElementById('exOv').classList.remove('on')">Close</button>
+</div>
+
+<!-- SETTINGS OVERLAY -->
+<div class="setov" id="setOv">
+  <div class="sethdr"><h2>&#9881; SYSTEM SETTINGS</h2><button onclick="closeSettings()">CLOSE</button></div>
+  <div class="setbody">
+    <div class="setcat">&#9673; VOICE</div>
+    <div class="setrow">
+      <div class="setlbl"><span>Wake Word</span><small>Passive mic listens for wake phrase in background</small></div>
+      <label class="tog"><input type="checkbox" id="sWake"><span class="togsl"></span></label>
+    </div>
+    <div class="setrow">
+      <div class="setlbl"><span>Mic Sensitivity</span><small>Minimum confidence to accept voice input (0 = accept all)</small></div>
+      <div style="display:flex;align-items:center;gap:7px">
+        <input type="range" class="setrng" id="sMicConf" min="0" max="8" step="1" oninput="document.getElementById('sMicLbl').textContent=micConfLabels[this.value]">
+        <span class="setrngval" id="sMicLbl">MED</span>
+      </div>
+    </div>
+    <div class="setcat">&#9673; VISION</div>
+    <div class="setrow">
+      <div class="setlbl"><span>Camera Auto-Close</span><small>Automatically close camera after this idle duration</small></div>
+      <select class="setsel" id="sCamTO">
+        <option value="0">Never</option><option value="30">30 sec</option>
+        <option value="60">1 min</option><option value="120">2 min</option><option value="300">5 min</option>
+      </select>
+    </div>
+    <div class="setcat">&#9673; MEMORY</div>
+    <div class="setrow">
+      <div class="setlbl"><span>Auto-Summarize Frequency</span><small>Compress session memory every N AI exchanges</small></div>
+      <select class="setsel" id="sSumFq">
+        <option value="6">Every 6</option><option value="10">Every 10</option>
+        <option value="20">Every 20</option><option value="40">Every 40</option><option value="0">Disabled</option>
+      </select>
+    </div>
+  </div>
+  <div class="setfooter">
+    <button class="sbtn-save" onclick="saveSettings()">&#9632; SAVE</button>
+    <button class="sbtn-reset" onclick="resetSettings()">&#8634; DEFAULTS</button>
+  </div>
+</div>
+
+<!-- MAIN HUD -->
+<div class="hud">
+  <h1 class="ttl">JARVIS v11 · VOICE</h1>
+  <div class="clk" id="clk">00:00:00</div>
+  <div class="wrap" id="core" onclick="activateMic()" title="Click to speak (or press Space)">
+    <div class="orbit"></div>
+    <div class="ring1"><div class="ring2"></div><div class="dot"></div></div>
+  </div>
+  <div class="st" id="st">Systems nominal. Click core or type command<span class="blink">_</span></div>
+  <div class="resp"><div id="rt">All systems online. Awaiting directive, Sir.</div></div>
+  <div class="inp"><span class="pfx">CMD://</span><input class="cmd" id="cmd" placeholder="Execute command..." autocomplete="off" onkeydown="onKey(event)"></div>
+  <div class="meta">
+    <span>J.A.R.V.I.S v8.0</span><button onclick="document.getElementById('exOv').classList.add('on')" style="font-size:9px;letter-spacing:.07em" title="Export/Import profile">&#9660; JSON</button>
+    <span id="batt">BAT: --</span>
+    <span id="memBadge" class="wxbadge" onclick="run('memory')" title="Stored facts"></span>
+    <span id="wxBadge" class="wxbadge" onclick="showWeather()" title="Ruiru weather"></span><button onclick="openSettings()" title="System settings">&#9881;</button><button onclick="togglePanel()">&#9776; CMDS</button>
+  </div>
+</div>
+<script>
+var MEM={birthday:"Your birthday is on March 18th.",favCar:"Your structural favorites are the Audi S5 B8.5, S4 B8.5, BMW M5 E39, and Nissan Silvia S14."};
+
+// ═══ MEMORY SYSTEM ═══
+var userProfile={};
+function loadProfile(){
+  try{userProfile=JSON.parse(localStorage.getItem('jprofile')||'{}');}catch(e){userProfile={};}
+  if(!userProfile.facts)userProfile.facts=[];
+  if(!userProfile.name)userProfile.name='Sir';
+  if(!userProfile.interactionCount)userProfile.interactionCount=0;
+}
+function saveProfile(){try{localStorage.setItem('jprofile',JSON.stringify(userProfile));}catch(e){}updateMemBadge();}
+function updateMemBadge(){var el=document.getElementById('memBadge');if(el){var n=(userProfile.facts||[]).length;el.textContent='MEM: '+n;}}
+
+// ============ v9 UPGRADE: SEMANTIC MEMORY + TOOL CALLING ============
+var _embedCache = {}; // text -> vector
+var _semanticTopK = []; // populated per-turn before buildSystemPrompt
+async function embedText(text){
+  if(!text) return null;
+  if(_embedCache[text]) return _embedCache[text];
+  var k=localStorage.getItem('jkey'); if(!k) return null;
+  try{
+    var r=await fetch('https://api.openai.com/v1/embeddings',{method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},
+      body:JSON.stringify({model:'text-embedding-3-small',input:text.slice(0,2000)})});
+    if(!r.ok) return null;
+    var d=await r.json();
+    var v=d.data[0].embedding;
+    _embedCache[text]=v;
+    return v;
+  }catch(e){return null;}
+}
+function cosineSim(a,b){
+  if(!a||!b||a.length!==b.length) return 0;
+  var dot=0,na=0,nb=0;
+  for(var i=0;i<a.length;i++){dot+=a[i]*b[i];na+=a[i]*a[i];nb+=b[i]*b[i];}
+  var d=Math.sqrt(na)*Math.sqrt(nb);
+  return d?dot/d:0;
+}
+async function addFactWithEmbedding(fact){
+  if(!userProfile.facts) userProfile.facts=[];
+  if(!userProfile.factVecs) userProfile.factVecs=[];
+  if(userProfile.facts.indexOf(fact)>=0) return;
+  userProfile.facts.push(fact);
+  var v=await embedText(fact);
+  userProfile.factVecs.push(v||null);
+  saveProfile();
+}
+async function topKFactsForQuery(query,k){
+  k=k||5;
+  if(!userProfile.facts||!userProfile.facts.length) return [];
+  // Backfill any missing embeddings (lazy migration from v8)
+  if(!userProfile.factVecs) userProfile.factVecs=[];
+  while(userProfile.factVecs.length<userProfile.facts.length) userProfile.factVecs.push(null);
+  var qv=await embedText(query);
+  if(!qv){
+    // No embeddings available -> fall back to most-recent
+    return userProfile.facts.slice(-k);
+  }
+  // Backfill at most 3 missing embeddings per turn to avoid burst cost
+  var bf=0;
+  for(var i=0;i<userProfile.facts.length&&bf<3;i++){
+    if(!userProfile.factVecs[i]){
+      userProfile.factVecs[i]=await embedText(userProfile.facts[i]);
+      bf++;
+    }
+  }
+  var scored=[];
+  for(var j=0;j<userProfile.facts.length;j++){
+    var s=userProfile.factVecs[j]?cosineSim(qv,userProfile.factVecs[j]):-1;
+    scored.push({f:userProfile.facts[j],s:s});
+  }
+  scored.sort(function(a,b){return b.s-a.s;});
+  return scored.slice(0,k).filter(function(x){return x.s>0.15;}).map(function(x){return x.f;});
+}
+
+// ---------- TOOL DEFINITIONS exposed to the AI ----------
+var JARVIS_TOOLS=[
+  {type:'function',function:{name:'execute_command',description:'Run any JARVIS command exactly as the user would type it (e.g. "set timer 5 minutes", "weather", "open camera", "matrix", "stealth", "play despacito", "search quantum physics", "navigate to JFK", "calculate 2+2*pi", "roll 2d20", "joke", "quote success", "morse SOS"). Use this for ANY actionable request. Do not invent commands; pick from the CMD reference the user has.',parameters:{type:'object',properties:{command:{type:'string',description:'The exact command string to dispatch.'}},required:['command']}}},
+  {type:'function',function:{name:'remember_fact',description:'Persist a durable fact about the user or their world to long-term semantic memory. Use sparingly - only for things worth recalling across sessions.',parameters:{type:'object',properties:{fact:{type:'string'}},required:['fact']}}},
+  {type:'function',function:{name:'recall_memory',description:'Semantically search the user\u2019s stored facts for anything relevant to a query. Returns up to 8 best matches.',parameters:{type:'object',properties:{query:{type:'string'},k:{type:'integer'}},required:['query']}}},
+  {type:'function',function:{name:'get_context',description:'Return live system context: time, weather, battery, user profile, last 3 session summaries.',parameters:{type:'object',properties:{}}}},
+  {type:'function',function:{name:'set_timer',description:'Start a countdown timer.',parameters:{type:'object',properties:{seconds:{type:'integer'},label:{type:'string'}},required:['seconds']}}}
+];
+
+async function executeTool(name,args){
+  try{
+    if(name==='execute_command'){
+      var c=String(args.command||'').trim();
+      if(!c) return {ok:false,error:'empty command'};
+      setTimeout(function(){run(c);},50);
+      return {ok:true,dispatched:c};
+    }
+    if(name==='remember_fact'){
+      var f=String(args.fact||'').trim();
+      if(!f) return {ok:false,error:'empty fact'};
+      await addFactWithEmbedding(f);
+      updateMemBadge();
+      return {ok:true,stored:f,total:userProfile.facts.length};
+    }
+    if(name==='recall_memory'){
+      var hits=await topKFactsForQuery(String(args.query||''),args.k||8);
+      return {ok:true,matches:hits};
+    }
+    if(name==='get_context'){
+      var batt=document.getElementById('batt');
+      return {ok:true,
+        time:new Date().toLocaleString(),
+        user:userProfile.name||'Sir',
+        interactions:userProfile.interactionCount||0,
+        weather:wxData?(wxData.desc+', '+wxData.temp+'\u00b0C'):'unknown',
+        battery:batt?batt.textContent:'n/a',
+        facts_total:(userProfile.facts||[]).length,
+        recent_summaries:(ls('jsummaries')||[]).slice(-3)};
+    }
+    if(name==='set_timer'){
+      var s=parseInt(args.seconds);
+      if(!s||s<1) return {ok:false,error:'invalid seconds'};
+      startCountdown(s,args.label||'AI TIMER');
+      return {ok:true,started:s,label:args.label||'AI TIMER'};
+    }
+    return {ok:false,error:'unknown tool '+name};
+  }catch(e){return {ok:false,error:String(e&&e.message||e)};}
+}
+// ============ /v9 UPGRADE ============
+
+function buildSystemPrompt(){
+  var sys='You are J.A.R.V.I.S. (Just A Rather Very Intelligent System), an extraordinarily advanced AI assistant. ';
+  sys+=(userProfile.name&&userProfile.name!=='Sir')?'You serve '+userProfile.name+', whom you address formally as Sir. ':'You address your user as Sir. ';
+  sys+='You are formal, precise, deeply loyal, and expert in science, technology, and strategy. ';
+  sys+='Your communication style: sophisticated and articulate with dry British wit. Concise unless detail is requested. Always maintain character and dignity. ';
+  sys+='Guidelines: Use grammatically correct, refined language. Provide thoughtful analysis. Acknowledge context from prior conversations. ';
+  sys+='Never break character. Respond with elegance and intelligence to all inquiries. ';
+  sys+='Current time: '+new Date().toLocaleString()+'. ';
+  sys+='Known profile: '+Object.values(MEM).join(' ')+' ';
+  var _facts=(_semanticTopK&&_semanticTopK.length)?_semanticTopK:(userProfile.facts||[]).slice(-12);
+  if(_facts.length>0)sys+='Relevant known facts (semantic recall): '+_facts.join('; ')+'. ';
+  sys+='You have function tools available. Prefer calling execute_command for any actionable request (timers, weather, camera, modes, search, math, games, navigation, etc.) instead of just describing what to do. Use remember_fact when the user shares something durable about themselves. Use recall_memory before answering questions that depend on prior context.';
+  if(wxData)sys+='Ruiru weather now: '+wxData.desc+', '+wxData.temp+'\u00b0C, humidity '+wxData.humidity+'%. ';
+  var sums=ls('jsummaries');
+  if(sums.length>0)sys+='Prior session context: '+sums.slice(-3).join(' | ')+'. ';
+  return [{role:'system',content:sys}];
+}
+function memExtract(msg){
+  var m;
+  if((m=msg.match(/my name is ([a-zA-Z]+)/i))||(m=msg.match(/call me ([a-zA-Z]+)/i)))userProfile.name=m[1];
+  if((m=msg.match(/remember (?:that )?(.+)/i))){var f=m[1].trim();addFactWithEmbedding(f);}
+  userProfile.interactionCount=(userProfile.interactionCount||0)+1;
+  userProfile.lastSeen=Date.now();
+  saveProfile();
+}
+function showProfile(){
+  var sums=ls('jsummaries'),p=userProfile;
+  document.getElementById('memBox').innerHTML=
+    '<b>IDENTITY</b>Name: '+(p.name||'Unknown')+'<br>Interactions: '+(p.interactionCount||0)+
+    '<br>Last active: '+(p.lastSeen?new Date(p.lastSeen).toLocaleString():'Never')+
+    '<b>STORED FACTS ('+(p.facts?p.facts.length:0)+')</b>'+
+    (p.facts&&p.facts.length?p.facts.map(function(f,i){return (i+1)+'. '+f;}).join('<br>'):'None stored.')+
+    '<b>SESSION SUMMARIES ('+(sums?sums.length:0)+')</b>'+
+    (sums&&sums.length?sums.slice(-3).map(function(s,i){return (i+1)+'. '+s;}).join('<br>'):'None.')+
+    '<b>WAKE PHRASE</b>'+(localStorage.getItem('jwake')||'hey jarvis');
+  document.getElementById('memOv').classList.add('on');
+}
+function autoSummarize(){
+  var k=localStorage.getItem('jkey');if(!k)return;
+  var txt=aiHistory.slice(-20).map(function(m){return m.role+': '+m.content;}).join('\n');
+  fetch('https://api.openai.com/v1/chat/completions',{method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},
+    body:JSON.stringify({model:'gpt-4o-mini',messages:[
+      {role:'system',content:'Summarize this conversation in 1-2 sentences for future context injection. Be extremely concise.'},
+      {role:'user',content:txt}],max_tokens:80})
+  }).then(function(r){return r.json();}).then(function(d){
+    var s=d.choices[0].message.content,sums=ls('jsummaries');
+    sums.push(s);if(sums.length>10)sums=sums.slice(-10);ss('jsummaries',sums);
+  }).catch(function(){});
+}
+loadProfile();
+document.getElementById('arClose').addEventListener('click',function(){closeAR();run('close ar');});
+updateMemBadge();
+// Show name prompt on first run if name not yet set
+if(!userProfile.name||userProfile.name==='Sir'){
+  setTimeout(function(){document.getElementById('nmOv').classList.add('on');},600);
+}
+
+
+// ═══ FIRST-RUN NAME SETUP ═══
+function saveUserName(){
+  var v=document.getElementById('nmInp').value.trim();
+  if(!v){document.getElementById('nmInp').focus();return;}
+  userProfile.name=v;
+  saveProfile();
+  document.getElementById('nmOv').classList.remove('on');
+  resp('Identity confirmed.',
+    'Welcome, '+v+'. All systems online and ready.',
+    'Identity confirmed. Welcome, '+v+'. All systems are online and standing by.');
+}
+
+// ═══ SETTINGS MODULE ═══
+var micConfLabels=['OFF','LOWEST','LOW','MED-LOW','MED','MED-HIGH','HIGH','HIGHEST','MAX'];
+var SETTINGS_DEF={wakeWord:false,micConf:0,camTO:0,sumFq:20};
+var jSettings=Object.assign({},SETTINGS_DEF);
+var camTOId=null;
+function loadSettings(){try{var s=JSON.parse(localStorage.getItem('jsettings')||'null');if(s)jSettings=Object.assign({},SETTINGS_DEF,s);}catch(e){}}
+function openSettings(){
+  document.getElementById('sWake').checked=wakeActive;
+  document.getElementById('sMicConf').value=jSettings.micConf;
+  document.getElementById('sMicLbl').textContent=micConfLabels[jSettings.micConf];
+  var cTO=document.getElementById('sCamTO');
+  for(var i=0;i<cTO.options.length;i++)if(parseInt(cTO.options[i].value)===jSettings.camTO){cTO.selectedIndex=i;break;}
+  var sFq=document.getElementById('sSumFq');
+  for(var i=0;i<sFq.options.length;i++)if(parseInt(sFq.options[i].value)===jSettings.sumFq){sFq.selectedIndex=i;break;}
+  document.getElementById('setOv').classList.add('on');
+}
+function closeSettings(){document.getElementById('setOv').classList.remove('on');}
+function saveSettings(){
+  var nw=document.getElementById('sWake').checked;
+  jSettings.micConf=parseInt(document.getElementById('sMicConf').value);
+  jSettings.camTO=parseInt(document.getElementById('sCamTO').value);
+  jSettings.sumFq=parseInt(document.getElementById('sSumFq').value);
+  jSettings.wakeWord=nw;
+  try{localStorage.setItem('jsettings',JSON.stringify(jSettings));}catch(e){}
+  if(nw!==wakeActive)toggleWakeWord(nw);
+  closeSettings();
+  resp('Settings saved.',
+    'Wake: '+(nw?'ON':'OFF')+' | Mic: '+micConfLabels[jSettings.micConf]+
+    ' | Cam: '+(jSettings.camTO?jSettings.camTO+'s':'Off')+
+    ' | Summarize: '+(jSettings.sumFq?'Every '+jSettings.sumFq:'Off'),
+    'Settings saved, Sir.');
+}
+function resetSettings(){
+  jSettings=Object.assign({},SETTINGS_DEF);
+  try{localStorage.setItem('jsettings',JSON.stringify(jSettings));}catch(e){}
+  if(wakeActive)toggleWakeWord(false);
+  openSettings();
+  resp('Settings reset.','Factory defaults restored.','Settings reset to defaults, Sir.');
+}
+function startCamTimer(){
+  clearCamTimer();
+  if(!jSettings.camTO)return;
+  camTOId=setTimeout(function(){if(camStream){deactivateCameraVision();resp('Vision timeout.','Camera closed after '+jSettings.camTO+'s idle.','Vision auto-closed, Sir.');}},jSettings.camTO*1000);
+}
+function clearCamTimer(){if(camTOId){clearTimeout(camTOId);camTOId=null;}}
+loadSettings();
+
+// ═══ LIVE WEATHER (Open-Meteo, Ruiru -1.1484,36.9610) ═══
+var WMO_CODES={0:'Clear Sky',1:'Mainly Clear',2:'Partly Cloudy',3:'Overcast',45:'Fog',48:'Freezing Fog',51:'Light Drizzle',53:'Drizzle',55:'Dense Drizzle',61:'Light Rain',63:'Moderate Rain',65:'Heavy Rain',71:'Light Snow',73:'Snow',75:'Heavy Snow',80:'Light Showers',81:'Showers',82:'Violent Showers',95:'Thunderstorm',99:'Thunderstorm+Hail'};
+var wxData=null;
+async function fetchWeather(){
+  try{
+    var r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=-1.1484&longitude=36.9610&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=Africa%2FNairobi');
+    if(!r.ok)throw new Error('wx '+r.status);
+    var d=await r.json(),c=d.current;
+    wxData={temp:Math.round(c.temperature_2m),humidity:Math.round(c.relative_humidity_2m),wind:Math.round(c.wind_speed_10m),code:c.weather_code,desc:WMO_CODES[c.weather_code]||'Unknown',time:new Date()};
+    return wxData;
+  }catch(e){return null;}
+}
+async function showWeather(){
+  sets('Accessing atmospheric sensors...');
+  var wx=await fetchWeather();
+  if(!wx){resp('Sensor error.','Weather data unavailable.','Atmospheric sensors offline, Sir.');return;}
+  var txt='RUIRU ATMOSPHERIC REPORT\n'+wx.desc+'\nTemp: '+wx.temp+'\u00b0C  |  Humidity: '+wx.humidity+'%\nWind: '+wx.wind+' km/h  |  Updated: '+wx.time.toLocaleTimeString();
+  resp('Atmosphere: '+wx.desc,txt,'Current conditions in Ruiru: '+wx.desc+'. '+wx.temp+' degrees Celsius. Humidity at '+wx.humidity+' percent, Sir.');
+}
+(async function(){var wx=await fetchWeather();if(wx){var el=document.getElementById('wxBadge');if(el)el.textContent=wx.temp+'\u00b0 '+wx.desc.split(' ')[0];}})();
+setInterval(async function(){var wx=await fetchWeather();if(wx){var el=document.getElementById('wxBadge');if(el)el.textContent=wx.temp+'\u00b0 '+wx.desc.split(' ')[0];}},600000);
+
+// ═══ LIVE CURRENCY (open.er-api.com, no key, base USD) ═══
+var fxCache={base:null,rates:null,time:0};
+async function fetchFx(base){
+  base=(base||'USD').toUpperCase();
+  if(fxCache.base===base&&fxCache.rates&&(Date.now()-fxCache.time)<600000)return fxCache.rates;
+  try{
+    var r=await fetch('https://open.er-api.com/v6/latest/'+base);
+    if(!r.ok)throw new Error('fx '+r.status);
+    var d=await r.json();
+    if(d.result!=='success'||!d.rates)throw new Error('fx bad response');
+    fxCache={base:base,rates:d.rates,time:Date.now()};
+    return d.rates;
+  }catch(e){return null;}
+}
+async function convertCurrency(amount,from,to){
+  from=from.toUpperCase();to=to.toUpperCase();
+  var rates=await fetchFx(from);
+  if(!rates)return null;
+  if(!rates[to])return 'unknown';
+  return amount*rates[to];
+}
+
+// ═══ GRAMMAR/SPELL CHECK (LanguageTool public API) ═══
+async function checkGrammar(text){
+  try{
+    var body=new URLSearchParams();
+    body.append('text',text);
+    body.append('language','en-US');
+    var r=await fetch('https://api.languagetool.org/v2/check',{
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body:body.toString()
+    });
+    if(!r.ok)throw new Error('LT status '+r.status);
+    var d=await r.json();
+    return d.matches||[];
+  }catch(e){
+    throw e;
+  }
+}
+
+// ═══ CAESAR CIPHER ═══
+function caesarEncode(text,shift){
+  return text.split('').map(function(c){
+    if(/[a-z]/.test(c))return String.fromCharCode((c.charCodeAt(0)-97+shift)%26+97);
+    if(/[A-Z]/.test(c))return String.fromCharCode((c.charCodeAt(0)-65+shift)%26+65);
+    return c;
+  }).join('');
+}
+
+// ═══ TIMEZONE CONVERTER ═══
+var TZ={EST:-5,CST:-6,MST:-7,PST:-8,GMT:0,CET:1,IST:5.5,JST:9,AEST:10,NZST:12};
+function convertTZ(from,to,time){
+  var fh=parseInt(time.split(':')[0]),fm=parseInt(time.split(':')[1])||0;
+  var fromOff=TZ[from.toUpperCase()]||0,toOff=TZ[to.toUpperCase()]||0;
+  var diff=toOff-fromOff,newH=(fh+diff+24)%24,newM=fm;
+  return (newH<10?'0':'')+newH+':'+(newM<10?'0':'')+newM;
+}
+
+// ═══ ASCII ART ═══
+var ASCII_FONT={A:'  A\\n / \\\\\\n/_  _\\\\',B:' B\\n|_)\\n|_)',C:' __\\n|  \\n|__',};
+function asciiArt(text){
+  var ascii='';
+  for(var i=0;i<text.length;i++){
+    var letter=text[i].toUpperCase();
+    ascii+=(ASCII_FONT[letter]||letter)+' ';
+  }
+  return ascii;
+}
+
+// ═══ HANGMAN ═══
+var HANGMAN_WORDS=['javascript','programming','artificial','intelligence','algorithm','database','function','variable','console','network'];
+function startHangman(){
+  hWord=HANGMAN_WORDS[Math.floor(Math.random()*HANGMAN_WORDS.length)];
+  hGuessed='';hWrong=0;hActive=true;
+  var display=hWord.split('').map(function(c){return hGuessed.indexOf(c)>=0?c:'_';}).join(' ');
+  resp('Hangman started.','Word: '+display+'\nWrong: '+hWrong+'/6','Hangman started, Sir. Guess a letter.');
+}
+function guessHangman(letter){
+  if(!hActive||!letter||letter.length!==1){resp('Invalid guess.','Enter a single letter, Sir.','Invalid guess, Sir.');return;}
+  if(hGuessed.indexOf(letter)>=0){resp('Already guessed.','You already guessed '+letter+', Sir.','Already guessed that letter, Sir.');return;}
+  hGuessed+=letter;
+  if(hWord.indexOf(letter)<0)hWrong++;
+  var display=hWord.split('').map(function(c){return hGuessed.indexOf(c)>=0?c:'_';}).join(' ');
+  if(display.indexOf('_')<0){hActive=false;resp('You won!','Word was: '+hWord,'You solved it, Sir.');return;}
+  if(hWrong>=6){hActive=false;resp('Game over.','Word was: '+hWord,'Game over, Sir.');return;}
+  resp('Guessed: '+hGuessed,'Word: '+display+'\nWrong: '+hWrong+'/6','Letter recorded, Sir.');
+}
+
+// ═══ SIMON SAYS ═══
+var SIMON_COLORS=['red','green','blue','yellow'];
+function startSimon(){
+  sSequence=[Math.floor(Math.random()*4)];sPlayerSeq=[];sLevel=1;sActive=true;
+  resp('Simon started.','Watch the sequence.','Simon Says has started, Sir.');
+  setTimeout(function(){playSimonSequence();},500);
+}
+function playSimonSequence(){
+  for(var si=0;si<sSequence.length;si++){
+    setTimeout(function(idx){
+      var color=SIMON_COLORS[sSequence[idx]];
+      resp('Simon','Flashed: '+color,color);
+    },si*600,si);
+  }
+}
+function guessSimon(color){
+  if(!sActive){resp('Game not active.','Start a game first with "play simon".','Game not active, Sir.');return;}
+  var idx=SIMON_COLORS.indexOf(color.toLowerCase());
+  if(idx<0){resp('Invalid color.','Use: red, green, blue, or yellow, Sir.','Invalid color, Sir.');return;}
+  if(idx!==sSequence[sPlayerSeq.length]){sActive=false;resp('Game over!','You made it to level '+sLevel+', Sir.','Game over, Sir. You reached level '+sLevel+'.');return;}
+  sPlayerSeq.push(idx);
+  if(sPlayerSeq.length===sSequence.length){
+    sLevel++;sSequence.push(Math.floor(Math.random()*4));sPlayerSeq=[];
+    resp('Level '+sLevel+'!','Next sequence coming...','Level '+sLevel+' unlocked, Sir.');
+    setTimeout(function(){playSimonSequence();},1000);
+  }
+}
+
+// ═══ AI DAILY BRIEFING ═══
+async function showBriefing(){
+  var k=localStorage.getItem('jkey');
+  if(!k){document.getElementById('aiOv').classList.add('on');return;}
+  sets('Compiling daily briefing...');
+  document.getElementById('core').classList.add('ai-thinking');
+  var wx=await fetchWeather();
+  var notes=ls('jn');
+  var now=new Date();
+  var nameForBrief=(userProfile.name&&userProfile.name!=='Sir')?userProfile.name:'Sir';
+  var dataBlock='Date/time: '+now.toLocaleString()+'. ';
+  dataBlock+=wx?('Ruiru weather: '+wx.desc+', '+wx.temp+'\u00b0C, humidity '+wx.humidity+'%, wind '+wx.wind+'km/h. '):'Weather data unavailable. ';
+  dataBlock+=notes.length?('Open notes ('+notes.length+'): '+notes.slice(-8).join('; ')+'. '):'No open notes. ';
+  if(userProfile.facts&&userProfile.facts.length)dataBlock+='Known facts about user: '+userProfile.facts.slice(-6).join('; ')+'. ';
+  try{
+    var r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},
+      body:JSON.stringify({model:'gpt-4o-mini',messages:[
+        {role:'system',content:'You are J.A.R.V.I.S., a formal British AI assistant. Compose a short daily briefing (4-6 sentences) for '+nameForBrief+' using ONLY the data provided. Cover the date, weather, and any open notes/tasks worth flagging. If facts about the user are relevant, weave in one naturally. Do not invent news, events, or data not given. Address the user as Sir. Dry wit welcome but keep it brief and useful.'},
+        {role:'user',content:dataBlock}
+      ],max_tokens:220,temperature:0.7})
+    });
+    if(!r.ok){
+      var errText=await r.text();
+      var errMsg='Status '+r.status;
+      try{var errJson=JSON.parse(errText);if(errJson.error&&errJson.error.message)errMsg=errJson.error.message;}catch(ex0){if(errText&&errText.length<150)errMsg=errText;}
+      throw new Error(errMsg);
+    }
+    var d=await r.json();
+    if(!d.choices||!d.choices[0]||!d.choices[0].message)throw new Error('Unexpected API response format');
+    var briefing=d.choices[0].message.content;
+    sets('Briefing ready.');
+    setr(briefing);
+    speak(briefing.length>280?briefing.substring(0,280)+'...':briefing);
+  }catch(e){
+    var bmsg=e.message||'Unknown error';
+    var bhint='';
+    if(bmsg.indexOf('Failed to fetch')>=0||bmsg.indexOf('NetworkError')>=0)bhint=' (Likely a CORS/network block.)';
+    resp('Briefing failed.','Could not generate briefing: '+bmsg+bhint,'I was unable to compile your briefing, Sir.');
+  }
+  document.getElementById('core').classList.remove('ai-thinking');
+}
+
+// ═══ WAKE WORD ═══
+var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+var wakePhrase=localStorage.getItem('jwake')||'hey jarvis';
+var wakeRec=null,wakeActive=false;
+function initWakeWord(){
+  if(!SR)return;
+  wakeRec=new SR();
+  wakeRec.lang='en-US';wakeRec.continuous=true;wakeRec.interimResults=true;wakeRec.maxAlternatives=1;
+  wakeRec.onresult=function(e){
+    var t='';for(var i=e.resultIndex;i<e.results.length;i++)t+=e.results[i][0].transcript.toLowerCase();
+    if(t.indexOf(wakePhrase.toLowerCase())>=0){
+      sets('Wake word detected: "'+wakePhrase+'"');
+      try{wakeRec.stop();}catch(ex){}
+      (async function(){
+        if(V11.voicelock&&V11.voiceprint){
+          speak('Authenticating, Sir.');
+          var ok=await verifySpeaker();
+          if(!ok){speak('Voice not recognised. Access denied.');sets('Voice auth: REJECTED');setTimeout(function(){if(wakeActive){try{wakeRec.start();}catch(ex){}}},2200);return;}
+          speak('Identity confirmed. Yes, Sir?');
+        }else{speak('Yes, Sir?');}
+        setTimeout(function(){activateMic();},700);
+        setTimeout(function(){if(wakeActive){try{wakeRec.start();}catch(ex){}}},5000);
+      })();
+    }
+  };
+  wakeRec.onend=function(){if(wakeActive){setTimeout(function(){try{wakeRec.start();}catch(e){}},400);}};
+  wakeRec.onerror=function(ev){if(ev.error!=='aborted'&&wakeActive){setTimeout(function(){try{wakeRec.start();}catch(e){}},1200);}};
+}
+function toggleWakeWord(on){
+  if(!wakeRec){resp('Wake unavailable.','Speech Recognition not available.','Wake word unavailable in this browser, Sir.');return;}
+  wakeActive=on;
+  var ind=document.getElementById('wakeInd');
+  if(on){try{wakeRec.start();}catch(e){}if(ind)ind.classList.add('on');sets('Wake word armed: "'+wakePhrase+'"');speak('Wake word armed. Say '+wakePhrase+' to activate me, Sir.');}
+  else{try{wakeRec.stop();}catch(e){}if(ind)ind.classList.remove('on');sets('Wake word offline.');speak('Wake word system deactivated, Sir.');}
+}
+function saveWakePhrase(){
+  var v=document.getElementById('wkInp').value.trim().toLowerCase();
+  if(!v){speak('Please enter a phrase, Sir.');return;}
+  wakePhrase=v;localStorage.setItem('jwake',v);
+  document.getElementById('wkCov').classList.remove('on');
+  if(wakeActive){try{wakeRec.stop();}catch(e){}setTimeout(function(){try{wakeRec.start();}catch(x){}},400);}
+  resp('Wake phrase updated.','"'+wakePhrase+'" armed.','Wake phrase updated to: '+wakePhrase+', Sir.');
+}
+initWakeWord();
+if(V11.voicelock&&V11.voiceprint){document.getElementById("vLock").classList.add("on");}
+
+// ═══ CAMERA VISION (webcam + GPT-4o) ═══
+var camStream=null;
+async function activateCameraVision(){
+  var k=localStorage.getItem('jkey');
+  if(!k){document.getElementById('aiOv').classList.add('on');return;}
+  try{
+    camStream=await navigator.mediaDevices.getUserMedia({video:{width:640,height:480,facingMode:'user'},audio:false});
+    var vid=document.getElementById('camVid');
+    vid.srcObject=camStream;
+    // Explicitly play and wait for video to be ready
+    await vid.play();
+    // Wait for metadata so videoWidth/videoHeight are populated
+    await new Promise(function(res){
+      if(vid.videoWidth>0){res();}
+      else{vid.addEventListener('loadeddata',res,{once:true});}
+    });
+    document.getElementById('camOv').classList.add('on');
+    startCamTimer();
+    sets('Vision online. Press SCAN to analyze.');
+    speak('Vision system online, Sir. Frame your subject and press scan.');
+  }catch(e){resp('Vision denied.','Camera error: '+e.message,'Vision system access denied, Sir. '+e.message.substring(0,60));}
+}
+function deactivateCameraVision(){
+  if(camStream){camStream.getTracks().forEach(function(t){t.stop();});camStream=null;}
+  var v=document.getElementById('camVid');if(v)v.srcObject=null;
+  clearCamTimer();
+  stopAllVisionLoops();
+  document.getElementById('camOv').classList.remove('on');
+  sets('Vision offline.');speak('Vision system offline, Sir.');
+}
+async function scanAndAnalyze(){
+  var k=localStorage.getItem('jkey');
+  if(!camStream||!k){if(!k)document.getElementById('aiOv').classList.add('on');return;}
+  var vid=document.getElementById('camVid'),cvs=document.getElementById('camCanvas');
+
+  // Fix: guard against video not ready yet
+  if(!vid.videoWidth||vid.videoWidth===0){
+    resp('Vision not ready.','Video feed still initialising — please wait 2 seconds then try again.','Video feed is still initialising, Sir. Please wait a moment.');
+    return;
+  }
+
+  cvs.width=vid.videoWidth;cvs.height=vid.videoHeight;
+  var ctx=cvs.getContext('2d');
+  ctx.drawImage(vid,0,0,cvs.width,cvs.height);
+  var dataUrl=cvs.toDataURL('image/jpeg',0.8);
+  var b64=dataUrl.split(',')[1];
+
+  // Guard: base64 must have real data
+  if(!b64||b64.length<200){
+    resp('Capture failed.','Image capture returned empty data. Please re-open camera.','Image capture failed, Sir. Please close and reopen the camera.');
+    return;
+  }
+
+  var btn=document.getElementById('scanBtn');
+  btn.textContent='SCANNING...';btn.disabled=true;
+  sets('Analyzing visual data...');document.getElementById('core').classList.add('ai-thinking');
+  try{
+    var r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},
+      body:JSON.stringify({model:'gpt-4o',max_tokens:220,messages:[{role:'user',content:[
+        {type:'text',text:'You are J.A.R.V.I.S. Describe what you see in this image precisely: objects, people, environment, text, lighting, spatial layout. Formal tone. Address user as Sir. Max 4 sentences.'},
+        {type:'image_url',image_url:{url:'data:image/jpeg;base64,'+b64,detail:'low'}}
+      ]}]})
+    });
+    // Fix: read the actual error body from OpenAI, not just the status code
+    if(!r.ok){
+      var errText=await r.text();
+      var errMsg='Status '+r.status;
+      try{var errJson=JSON.parse(errText);if(errJson.error&&errJson.error.message)errMsg=errJson.error.message;}catch(ex){if(errText.length<120)errMsg=errText;}
+      throw new Error(errMsg);
+    }
+    var d=await r.json();
+    if(!d.choices||!d.choices[0]||!d.choices[0].message)throw new Error('Unexpected API response format');
+    var a=d.choices[0].message.content;
+    document.getElementById('rt').textContent=a;
+    startCamTimer();
+    sets('Vision: analysis complete.');
+    speak(a.length>260?a.substring(0,260)+'...':a);
+  }catch(e){
+    var em=e.message.substring(0,100);
+    resp('Vision error.','Analysis failed: '+e.message,'Vision analysis error, Sir: '+em);
+  }
+  document.getElementById('core').classList.remove('ai-thinking');
+  btn.textContent='\u25b6 SCAN & ANALYZE';btn.disabled=false;
+}
+
+// ════════════════════════════════════════════════════════
+// v10 PHASE 2: ADVANCED VISION (object/face/OCR/QR)
+// ════════════════════════════════════════════════════════
+var V10={det:false,face:false,qr:false,cocoModel:null,faceDetector:null,barcodeDetector:null,tesseractWorker:null,raf:null,loading:false};
+
+function visToast(msg,ms){var t=document.getElementById('visToast');if(!t)return;t.textContent=msg;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('on');},ms||2200);}
+function loadScript(src){return new Promise(function(res,rej){var s=document.createElement('script');s.src=src;s.onload=res;s.onerror=function(){rej(new Error('load failed: '+src));};document.head.appendChild(s);});}
+
+function stopAllVisionLoops(){
+  V10.det=false;V10.face=false;V10.qr=false;
+  if(V10.raf){cancelAnimationFrame(V10.raf);V10.raf=null;}
+  var c=document.getElementById('detCvs');if(c){var x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);}
+  ['btnDetect','btnFace','btnQr'].forEach(function(id){var b=document.getElementById(id);if(b)b.classList.remove('on');});
+}
+
+function syncDetCanvas(){
+  var v=document.getElementById('camVid'),c=document.getElementById('detCvs');
+  if(!v||!c||!v.videoWidth)return false;
+  if(c.width!==v.videoWidth){c.width=v.videoWidth;c.height=v.videoHeight;}
+  return true;
+}
+
+// ─── OBJECT DETECTION (TensorFlow.js + COCO-SSD) ───
+async function ensureCoco(){
+  if(V10.cocoModel)return V10.cocoModel;
+  if(V10.loading)throw new Error('Model still loading...');
+  V10.loading=true;visToast('Loading neural object model...');
+  try{
+    if(typeof tf==='undefined')await loadScript('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js');
+    if(typeof cocoSsd==='undefined')await loadScript('https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js');
+    V10.cocoModel=await cocoSsd.load({base:'lite_mobilenet_v2'});
+    visToast('Object model online.');
+  }finally{V10.loading=false;}
+  return V10.cocoModel;
+}
+async function toggleObjectDetection(){
+  var btn=document.getElementById('btnDetect');
+  if(V10.det){V10.det=false;btn.classList.remove('on');var c=document.getElementById('detCvs');if(c)c.getContext('2d').clearRect(0,0,c.width,c.height);if(!V10.face&&!V10.qr&&V10.raf){cancelAnimationFrame(V10.raf);V10.raf=null;}return;}
+  if(!camStream){await activateCameraVision();}
+  try{await ensureCoco();}catch(e){resp('Vision error.',e.message,'Object detection failed to load, Sir.');return;}
+  V10.face=false;V10.qr=false;document.getElementById('btnFace').classList.remove('on');document.getElementById('btnQr').classList.remove('on');
+  V10.det=true;btn.classList.add('on');speak('Object detection engaged, Sir.');
+  visionLoop();
+}
+
+// ─── FACE DETECTION (native FaceDetector w/ TF blazeface fallback) ───
+async function ensureFaceDetector(){
+  if(V10.faceDetector)return V10.faceDetector;
+  if('FaceDetector' in window){V10.faceDetector={native:new window.FaceDetector({fastMode:true,maxDetectedFaces:8})};return V10.faceDetector;}
+  visToast('Loading face model...');
+  if(typeof tf==='undefined')await loadScript('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js');
+  if(typeof blazeface==='undefined')await loadScript('https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface@0.1.0/dist/blazeface.min.js');
+  var m=await blazeface.load();V10.faceDetector={blaze:m};return V10.faceDetector;
+}
+async function toggleFaceDetection(){
+  var btn=document.getElementById('btnFace');
+  if(V10.face){V10.face=false;btn.classList.remove('on');var c=document.getElementById('detCvs');if(c)c.getContext('2d').clearRect(0,0,c.width,c.height);if(!V10.det&&!V10.qr&&V10.raf){cancelAnimationFrame(V10.raf);V10.raf=null;}return;}
+  if(!camStream){await activateCameraVision();}
+  try{await ensureFaceDetector();}catch(e){resp('Face module error.',e.message,'Face detection failed, Sir.');return;}
+  V10.det=false;V10.qr=false;document.getElementById('btnDetect').classList.remove('on');document.getElementById('btnQr').classList.remove('on');
+  V10.face=true;btn.classList.add('on');speak('Facial recognition online, Sir.');
+  visionLoop();
+}
+
+// ─── QR / BARCODE ───
+async function ensureBarcode(){
+  if(V10.barcodeDetector)return V10.barcodeDetector;
+  if('BarcodeDetector' in window){
+    V10.barcodeDetector={native:new window.BarcodeDetector({formats:['qr_code','code_128','code_39','ean_13','ean_8','upc_a','upc_e','data_matrix','pdf417','aztec','itf']})};
+    return V10.barcodeDetector;
+  }
+  // Fallback: jsQR (QR only)
+  if(typeof jsQR==='undefined')await loadScript('https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js');
+  V10.barcodeDetector={jsqr:true};
+  visToast('Using fallback QR scanner (QR only).');
+  return V10.barcodeDetector;
+}
+async function toggleQRScan(){
+  var btn=document.getElementById('btnQr');
+  if(V10.qr){V10.qr=false;btn.classList.remove('on');var c=document.getElementById('detCvs');if(c)c.getContext('2d').clearRect(0,0,c.width,c.height);if(!V10.det&&!V10.face&&V10.raf){cancelAnimationFrame(V10.raf);V10.raf=null;}return;}
+  if(!camStream){await activateCameraVision();}
+  try{await ensureBarcode();}catch(e){resp('Barcode error.',e.message,'Barcode scanner failed, Sir.');return;}
+  V10.det=false;V10.face=false;document.getElementById('btnDetect').classList.remove('on');document.getElementById('btnFace').classList.remove('on');
+  V10.qr=true;btn.classList.add('on');speak('Barcode scanner armed, Sir.');
+  visionLoop();
+}
+
+// ─── Unified vision render loop ───
+async function visionLoop(){
+  if(!V10.det&&!V10.face&&!V10.qr)return;
+  var v=document.getElementById('camVid');
+  if(!syncDetCanvas()){V10.raf=requestAnimationFrame(visionLoop);return;}
+  var c=document.getElementById('detCvs'),ctx=c.getContext('2d');
+  ctx.clearRect(0,0,c.width,c.height);
+  try{
+    if(V10.det&&V10.cocoModel){
+      var preds=await V10.cocoModel.detect(v);
+      preds.forEach(function(p){drawBox(ctx,p.bbox[0],p.bbox[1],p.bbox[2],p.bbox[3],p.class+' '+Math.round(p.score*100)+'%','#00e5ff');});
+    }
+    if(V10.face&&V10.faceDetector){
+      var faces=[];
+      if(V10.faceDetector.native){try{faces=await V10.faceDetector.native.detect(v);}catch(e){}faces.forEach(function(f){var b=f.boundingBox;drawBox(ctx,b.x,b.y,b.width,b.height,'FACE','#ff00aa');});}
+      else if(V10.faceDetector.blaze){var pr=await V10.faceDetector.blaze.estimateFaces(v,false);pr.forEach(function(f){var x=f.topLeft[0],y=f.topLeft[1],w=f.bottomRight[0]-x,h=f.bottomRight[1]-y;drawBox(ctx,x,y,w,h,'FACE','#ff00aa');});}
+    }
+    if(V10.qr&&V10.barcodeDetector){
+      var codes=[];
+      if(V10.barcodeDetector.native){try{codes=await V10.barcodeDetector.native.detect(v);}catch(e){}codes.forEach(function(co){var b=co.boundingBox;drawBox(ctx,b.x,b.y,b.width,b.height,co.format.toUpperCase()+': '+co.rawValue.substring(0,40),'#ffd700');handleCode(co.rawValue,co.format);});}
+      else if(V10.barcodeDetector.jsqr){var cvs=document.getElementById('camCanvas');cvs.width=v.videoWidth;cvs.height=v.videoHeight;var cx=cvs.getContext('2d');cx.drawImage(v,0,0);var img=cx.getImageData(0,0,cvs.width,cvs.height);var code=jsQR(img.data,img.width,img.height);if(code){var loc=code.location;ctx.strokeStyle='#ffd700';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(loc.topLeftCorner.x,loc.topLeftCorner.y);ctx.lineTo(loc.topRightCorner.x,loc.topRightCorner.y);ctx.lineTo(loc.bottomRightCorner.x,loc.bottomRightCorner.y);ctx.lineTo(loc.bottomLeftCorner.x,loc.bottomLeftCorner.y);ctx.closePath();ctx.stroke();ctx.fillStyle='rgba(0,20,30,.8)';ctx.fillRect(loc.topLeftCorner.x,loc.topLeftCorner.y-18,Math.min(300,code.data.length*7+12),16);ctx.fillStyle='#ffd700';ctx.font='12px monospace';ctx.fillText('QR: '+code.data.substring(0,40),loc.topLeftCorner.x+6,loc.topLeftCorner.y-5);handleCode(code.data,'qr_code');}}
+    }
+  }catch(e){}
+  V10.raf=requestAnimationFrame(visionLoop);
+}
+
+function drawBox(ctx,x,y,w,h,label,color){
+  ctx.strokeStyle=color;ctx.lineWidth=2;ctx.strokeRect(x,y,w,h);
+  ctx.fillStyle='rgba(0,20,30,.82)';var tw=ctx.measureText?ctx.measureText(label).width+10:label.length*7+10;
+  ctx.fillRect(x,y-18,tw,16);
+  ctx.fillStyle=color;ctx.font='bold 11px "Share Tech Mono",monospace';
+  ctx.fillText(label,x+5,y-5);
+}
+
+var V10_lastCode=null,V10_lastCodeTime=0;
+function handleCode(val,fmt){
+  var now=Date.now();if(val===V10_lastCode&&now-V10_lastCodeTime<3500)return;
+  V10_lastCode=val;V10_lastCodeTime=now;
+  visToast('['+fmt.toUpperCase()+'] '+val.substring(0,80),3500);
+  resp('CODE DETECTED','['+fmt+']\n'+val+'\n\n'+(/^https?:\/\//i.test(val)?'(URL — tap to open)':''),fmt.replace(/_/g,' ')+' detected, Sir.');
+  if(/^https?:\/\//i.test(val)){var rt=document.getElementById('rt');rt.innerHTML='CODE DETECTED ['+fmt+']<br><a href="'+val+'" target="_blank" rel="noopener" style="color:#ffd700">'+val+'</a>';}
+}
+
+// ─── OCR (Tesseract.js) ───
+async function ensureTesseract(){
+  if(V10.tesseractWorker)return V10.tesseractWorker;
+  visToast('Loading OCR engine...');
+  if(typeof Tesseract==='undefined')await loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js');
+  V10.tesseractWorker=await Tesseract.createWorker('eng');
+  visToast('OCR engine ready.');
+  return V10.tesseractWorker;
+}
+async function runOCR(){
+  if(!camStream){await activateCameraVision();}
+  var v=document.getElementById('camVid');
+  if(!v.videoWidth){resp('OCR not ready.','Camera still warming up, Sir.','One moment, Sir.');return;}
+  var btn=document.getElementById('btnOcr');btn.classList.add('on');btn.textContent='\u25CF READING...';
+  try{
+    var worker=await ensureTesseract();
+    var cvs=document.getElementById('camCanvas');cvs.width=v.videoWidth;cvs.height=v.videoHeight;
+    cvs.getContext('2d').drawImage(v,0,0);
+    var r=await worker.recognize(cvs);
+    var txt=(r.data.text||'').trim();
+    if(!txt){resp('No text detected.','OCR found no legible text in the frame.','No text detected, Sir.');}
+    else{resp('TEXT RECOGNIZED',txt,'I have transcribed the text, Sir.');speak(txt.length>200?txt.substring(0,200)+'... end of excerpt.':txt);}
+  }catch(e){resp('OCR error.',e.message,'OCR failed, Sir: '+e.message.substring(0,60));}
+  btn.classList.remove('on');btn.textContent='\u25CF READ TEXT';
+}
+
+
+var jvol=parseFloat(localStorage.getItem('jvol')||'1');
+var aiHistory=[];
+var gActive=false,gNum=null,hActive=false,hWord='',hGuessed='',hWrong=0,sActive=false,sSequence=[],sPlayerSeq=[],sLevel=0;
+var mxIv=null,warpIv=null;
+var egActive={};
+
+// CLOCK
+(function tick(){document.getElementById('clk').textContent=new Date().toLocaleTimeString([],{hour12:false});setTimeout(tick,500);})();
+
+// BATTERY
+if(navigator.getBattery){navigator.getBattery().then(function(b){
+  function upd(){var p=Math.round(b.level*100),s=b.charging?'*':p<20?'LOW':'';document.getElementById('batt').textContent='BAT:'+p+'%'+s;if(!b.charging&&p<20)document.getElementById('batt').style.color='#ff6b00';}
+  b.addEventListener('levelchange',upd);b.addEventListener('chargingchange',upd);upd();
+});}else{document.getElementById('batt').textContent='BAT:N/A';}
+
+// VOICE
+// ═══ v11 VOICE ENGINE (WebAudio routed + optional OpenAI TTS) ═══
+var V11={
+  ctx:null,master:null,panner:null,hipass:null,lopass:null,convolver:null,wet:null,dry:null,
+  spatial:localStorage.getItem('j_spatial')!=='0',
+  premium:localStorage.getItem('j_premium_tts')==='1',
+  voice:localStorage.getItem('j_tts_voice')||'onyx',
+  currentSrc:null,
+  voicelock:localStorage.getItem('j_voicelock')==='1',
+  voiceprint:JSON.parse(localStorage.getItem('j_voiceprint')||'null'),
+  enrollSamples:[],enrollCount:0,enrolling:false,
+  sttMode:localStorage.getItem('j_stt_mode')||'native' // 'native' or 'whisper'
+};
+function ensureAudioCtx(){
+  if(V11.ctx)return V11.ctx;
+  var AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC)return null;
+  V11.ctx=new AC();
+  V11.master=V11.ctx.createGain();V11.master.gain.value=jvol;
+  V11.hipass=V11.ctx.createBiquadFilter();V11.hipass.type='highpass';V11.hipass.frequency.value=180;
+  V11.lopass=V11.ctx.createBiquadFilter();V11.lopass.type='lowpass';V11.lopass.frequency.value=7800;
+  V11.panner=V11.ctx.createStereoPanner();V11.panner.pan.value=0;
+  // synthetic short IR for plate-style ambience
+  var ir=V11.ctx.createBuffer(2,V11.ctx.sampleRate*0.35,V11.ctx.sampleRate);
+  for(var c=0;c<2;c++){var d=ir.getChannelData(c);for(var i=0;i<d.length;i++){d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,2.8);}}
+  V11.convolver=V11.ctx.createConvolver();V11.convolver.buffer=ir;
+  V11.wet=V11.ctx.createGain();V11.wet.gain.value=0.18;
+  V11.dry=V11.ctx.createGain();V11.dry.gain.value=0.92;
+  // graph: src -> hipass -> lopass -> panner -> (dry + wet->convolver) -> master -> out
+  V11.lopass.connect(V11.panner);
+  V11.panner.connect(V11.dry);V11.panner.connect(V11.convolver);
+  V11.convolver.connect(V11.wet);
+  V11.dry.connect(V11.master);V11.wet.connect(V11.master);
+  V11.master.connect(V11.ctx.destination);
+  V11.hipass.connect(V11.lopass);
+  return V11.ctx;
+}
+function applySpatial(on){
+  V11.spatial=on;localStorage.setItem('j_spatial',on?'1':'0');
+  if(!V11.ctx)return;
+  V11.wet.gain.value=on?0.18:0; V11.dry.gain.value=on?0.92:1;
+  V11.hipass.frequency.value=on?180:20; V11.lopass.frequency.value=on?7800:18000;
+}
+function autoPan(){if(!V11.panner)return;var t=Date.now()/2400;V11.panner.pan.value=Math.sin(t)*0.25;}
+setInterval(autoPan,140);
+
+async function speakOpenAI(t){
+  var k=localStorage.getItem('jkey');if(!k)throw new Error('no key');
+  var r=await fetch('https://api.openai.com/v1/audio/speech',{method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},
+    body:JSON.stringify({model:'tts-1',voice:V11.voice,input:t.substring(0,4000),response_format:'mp3',speed:0.96})});
+  if(!r.ok)throw new Error('tts '+r.status);
+  var buf=await r.arrayBuffer();
+  ensureAudioCtx();applySpatial(V11.spatial);
+  if(V11.ctx.state==='suspended')await V11.ctx.resume();
+  var audioBuf=await V11.ctx.decodeAudioData(buf);
+  if(V11.currentSrc){try{V11.currentSrc.stop();}catch(e){}}
+  var src=V11.ctx.createBufferSource();src.buffer=audioBuf;
+  src.connect(V11.spatial?V11.hipass:V11.master);
+  src.start(0);V11.currentSrc=src;
+}
+function speakNative(t){
+  if(!('speechSynthesis' in window))return;
+  speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(t);
+  var voices=speechSynthesis.getVoices();
+  var pref=['Google UK English Male','Daniel','Alex','Microsoft David Desktop','Google US English'];
+  var sv=null;
+  for(var i=0;i<pref.length;i++){sv=voices.find(function(v){return v.name.indexOf(pref[i])>=0;});if(sv)break;}
+  if(!sv)sv=voices.find(function(v){return v.lang.startsWith('en');});
+  if(sv)u.voice=sv;
+  u.rate=0.93;u.pitch=0.88;u.volume=jvol;
+  speechSynthesis.speak(u);
+}
+function speak(t){
+  if(!t)return;
+  if(V11.master)V11.master.gain.value=jvol;
+  if(V11.premium&&localStorage.getItem('jkey')){
+    speakOpenAI(t).catch(function(e){speakNative(t);});
+  }else{
+    speakNative(t);
+  }
+}
+speechSynthesis.onvoiceschanged=function(){};
+
+// ═══ VOICEPRINT (spectral fingerprint via WebAudio AnalyserNode) ═══
+async function computeFingerprint(stream,seconds){
+  ensureAudioCtx();
+  var src=V11.ctx.createMediaStreamSource(stream);
+  var an=V11.ctx.createAnalyser();an.fftSize=2048;an.smoothingTimeConstant=0.4;
+  src.connect(an);
+  var bins=an.frequencyBinCount;
+  var BANDS=24;
+  var accum=new Float32Array(BANDS);var frames=0;
+  var fdata=new Uint8Array(bins);
+  var start=Date.now();var vumeter=document.getElementById('enrollVU');
+  return new Promise(function(res){
+    (function loop(){
+      an.getByteFrequencyData(fdata);
+      // 24 mel-ish bands (log-spaced over 0..8kHz of nyquist)
+      var nyq=V11.ctx.sampleRate/2;
+      for(var b=0;b<BANDS;b++){
+        var lo=Math.pow(2,b/4)*60; var hi=Math.pow(2,(b+1)/4)*60;
+        var iLo=Math.floor(lo/nyq*bins),iHi=Math.min(bins-1,Math.floor(hi/nyq*bins));
+        var sum=0,cnt=0;
+        for(var i=iLo;i<=iHi;i++){sum+=fdata[i];cnt++;}
+        accum[b]+=cnt?sum/cnt:0;
+      }
+      frames++;
+      // VU
+      var rms=0;for(var i=0;i<fdata.length;i++){rms+=fdata[i];}rms/=fdata.length;
+      if(vumeter)vumeter.style.width=Math.min(100,rms/120*100)+'%';
+      if(Date.now()-start<seconds*1000){requestAnimationFrame(loop);}
+      else{
+        try{src.disconnect();}catch(e){}
+        var vec=new Float32Array(BANDS);
+        var norm=0;for(var k=0;k<BANDS;k++){vec[k]=accum[k]/frames;norm+=vec[k]*vec[k];}
+        norm=Math.sqrt(norm)||1;
+        for(var k2=0;k2<BANDS;k2++)vec[k2]/=norm;
+        if(vumeter)vumeter.style.width='0%';
+        res(Array.from(vec));
+      }
+    })();
+  });
+}
+function cosineSim(a,b){if(!a||!b||a.length!==b.length)return 0;var d=0;for(var i=0;i<a.length;i++)d+=a[i]*b[i];return d;}
+function openEnroll(){
+  V11.enrollSamples=[];V11.enrollCount=0;V11.enrolling=false;
+  document.getElementById('enrollStatus').textContent='Ready when you are.';
+  document.getElementById('enrollRecBtn').textContent='● RECORD SAMPLE 1/3';
+  document.getElementById('enrollRecBtn').disabled=false;
+  document.getElementById('enrollOv').classList.add('on');
+}
+function closeEnroll(){document.getElementById('enrollOv').classList.remove('on');}
+async function enrollCapture(){
+  if(V11.enrolling)return;
+  V11.enrolling=true;
+  var btn=document.getElementById('enrollRecBtn');btn.disabled=true;
+  document.getElementById('enrollStatus').textContent='Recording... speak the phrase now.';
+  try{
+    var stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    var fp=await computeFingerprint(stream,3.5);
+    stream.getTracks().forEach(function(t){t.stop();});
+    V11.enrollSamples.push(fp);V11.enrollCount++;
+    if(V11.enrollCount<3){
+      btn.textContent='● RECORD SAMPLE '+(V11.enrollCount+1)+'/3';btn.disabled=false;V11.enrolling=false;
+      document.getElementById('enrollStatus').textContent='Sample '+V11.enrollCount+' captured. Repeat the phrase.';
+    }else{
+      // average the 3 vectors and re-normalize
+      var avg=new Float32Array(V11.enrollSamples[0].length);
+      V11.enrollSamples.forEach(function(v){for(var i=0;i<v.length;i++)avg[i]+=v[i];});
+      var n=0;for(var i=0;i<avg.length;i++){avg[i]/=3;n+=avg[i]*avg[i];}n=Math.sqrt(n)||1;
+      for(var i=0;i<avg.length;i++)avg[i]/=n;
+      V11.voiceprint=Array.from(avg);
+      localStorage.setItem('j_voiceprint',JSON.stringify(V11.voiceprint));
+      document.getElementById('enrollStatus').textContent='Voiceprint enrolled. Voice Lock ready.';
+      btn.textContent='ENROLLMENT COMPLETE';
+      speak('Voiceprint stored, Sir. Voice authentication is now available.');
+      setTimeout(closeEnroll,1800);
+    }
+  }catch(e){
+    document.getElementById('enrollStatus').textContent='Capture failed: '+e.message;
+    btn.disabled=false;V11.enrolling=false;
+  }
+}
+function clearVoiceprint(){
+  if(!confirm('Delete stored voiceprint?'))return;
+  V11.voiceprint=null;localStorage.removeItem('j_voiceprint');
+  V11.voicelock=false;localStorage.setItem('j_voicelock','0');
+  document.getElementById('vLock').classList.remove('on');
+  document.getElementById('enrollStatus').textContent='Voiceprint cleared.';
+  speak('Voiceprint deleted, Sir.');
+}
+function toggleVoiceLock(on){
+  if(on&&!V11.voiceprint){speak('No voiceprint enrolled, Sir. Opening enrollment.');openEnroll();return;}
+  V11.voicelock=on;localStorage.setItem('j_voicelock',on?'1':'0');
+  document.getElementById('vLock').classList.toggle('on',on);
+  speak(on?'Voice lock engaged, Sir. Only your voice will be accepted.':'Voice lock disengaged.');
+}
+async function verifySpeaker(){
+  if(!V11.voicelock||!V11.voiceprint)return true;
+  try{
+    var stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    var fp=await computeFingerprint(stream,1.6);
+    stream.getTracks().forEach(function(t){t.stop();});
+    var sim=cosineSim(V11.voiceprint,fp);
+    sets('Speaker similarity: '+(sim*100).toFixed(1)+'%');
+    return sim>=0.78;
+  }catch(e){return false;}
+}
+
+
+// MIC
+var mic=SR?new SR():null;
+if(mic){mic.lang='en-US';mic.continuous=false;
+  mic.onresult=function(e){
+    var r=e.results[0][0];
+    var thr=jSettings.micConf>0?(jSettings.micConf*0.1+0.05):0;
+    if(!thr||r.confidence===0||r.confidence>=thr){run(r.transcript);}
+    else{sets('Low confidence ('+Math.round(r.confidence*100)+'%). Speak clearly.');}
+  };
+  mic.onend=function(){document.getElementById('core').classList.remove('listening');};
+  mic.onerror=function(){document.getElementById('core').classList.remove('listening');};
+}
+function activateMic(){if(!mic){setr('Voice unavailable.');return;}try{mic.start();document.getElementById('core').classList.add('listening');sets('Listening for matrix protocol...');}catch(e){}}
+function onKey(e){if(e.key!=='Enter')return;var f=document.getElementById('cmd'),v=f.value.trim();if(v){run(v);f.value='';}}
+
+// SPACEBAR SHORTCUT — activates mic, but never while typing in any text field
+document.addEventListener('keydown',function(e){
+  if(e.code!=='Space'&&e.key!==' ')return;
+  var tag=(document.activeElement&&document.activeElement.tagName||'').toLowerCase();
+  var isEditable=tag==='input'||tag==='textarea'||tag==='select'||tag==='button'||(document.activeElement&&document.activeElement.isContentEditable);
+  if(isEditable)return;
+  e.preventDefault();
+  activateMic();
+});
+
+function sets(m){document.getElementById('st').innerHTML=m+'<span class="blink">_</span>';}
+function setr(m){document.getElementById('rt').textContent=m;}
+
+var respVariations=['Understood.','Affirmative.','Acknowledged.','Processing.','Stand by.'];
+function getResponsePrefix(){return respVariations[Math.floor(Math.random()*respVariations.length)];}
+
+function resp(st,txt,speech){
+  // Add natural response variation to title
+  var hasPrefix=/^(understood|affirmative|acknowledged|processing|stand by)/i.test(st);
+  var title=hasPrefix?st:getResponsePrefix()+' '+st;
+  
+  sets(st);setr(txt||st);speak(speech||txt||st);
+}
+
+// TIMER
+var CIRC=578.05,tInt=null,swInt=null,swEl=0,swSt=0,swLaps=[];
+function startCountdown(secs,label){
+  if(tInt)clearInterval(tInt);
+  var rem=secs,tot=secs;
+  document.getElementById('tLab').textContent='MATRIX COUNTDOWN';
+  document.getElementById('tTask').textContent=label||'';
+  document.getElementById('tOv').classList.add('on');
+  function tick(){
+    var m=Math.floor(rem/60),s=rem%60;
+    document.getElementById('tDisp').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+    document.getElementById('tArc').style.strokeDashoffset=CIRC*(1-rem/tot);
+    if(rem<=0){clearInterval(tInt);tInt=null;document.getElementById('tLab').textContent='SEQUENCE COMPLETE';speak('Timer sequence complete, Sir.');setTimeout(function(){document.getElementById('tOv').classList.remove('on');},3000);}
+    rem--;
+  }
+  tick();tInt=setInterval(tick,1000);
+}
+function startSW(){
+  if(swInt)clearInterval(swInt);swEl=0;swSt=Date.now();swLaps=[];
+  document.getElementById('tLab').textContent='STOPWATCH RUNNING';
+  document.getElementById('tTask').textContent='Elapsed time tracking...';
+  document.getElementById('tArc').style.strokeDashoffset=0;
+  document.getElementById('tOv').classList.add('on');
+  swInt=setInterval(function(){swEl=Date.now()-swSt;var ts=Math.floor(swEl/1000),m=Math.floor(ts/60),s=ts%60;document.getElementById('tDisp').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;},100);
+}
+function stopTimer(){if(tInt){clearInterval(tInt);tInt=null;}if(swInt){clearInterval(swInt);swInt=null;}document.getElementById('tOv').classList.remove('on');speak('Sequence terminated, Sir.');}
+
+function ls(k){try{return JSON.parse(localStorage.getItem(k)||'[]');}catch(e){return[];}}
+function ss(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+
+function setRem(task,val,unit){
+  var ms=val*1000;
+  if(unit.indexOf('minute')>=0)ms=val*60000;
+  if(unit.indexOf('hour')>=0)ms=val*3600000;
+  resp('Reminder set.','Task: "'+task+'" in '+val+' '+unit+'s.','Task logged. I will remind you to '+task+' in '+val+' '+unit+'.');
+  setTimeout(function(){speak('Alert, Sir. Remember to '+task+'.');setr('REMINDER: '+task);try{alert('JARVIS ALERT:\n'+task);}catch(e){}},ms);
+}
+
+function fib(n){if(n<=1)return n;var a=0,b=1,c;for(var i=2;i<=n;i++){c=a+b;a=b;b=c;}return b;}
+function isPrime(n){if(n<2)return false;if(n===2)return true;if(n%2===0)return false;for(var i=3;i<=Math.sqrt(n);i+=2){if(n%i===0)return false;}return true;}
+function genPass(len){var c='ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%^&*',r='';for(var i=0;i<(len||16);i++)r+=c[Math.floor(Math.random()*c.length)];return r;}
+
+// ═══ VAULT (passphrase-locked notes — lightweight XOR cipher, NOT bank-grade security) ═══
+function xorCipher(text,pass){
+  var out='';
+  for(var i=0;i<text.length;i++){
+    out+=String.fromCharCode(text.charCodeAt(i)^pass.charCodeAt(i%pass.length));
+  }
+  return out;
+}
+function vaultChecksum(text){
+  var sum=0;
+  for(var i=0;i<text.length;i++){sum=(sum*31+text.charCodeAt(i))%99991;}
+  return sum;
+}
+function vaultEncrypt(text,pass){
+  var safeBytes=unescape(encodeURIComponent(text));
+  return {c:btoa(xorCipher(safeBytes,pass)),t:vaultChecksum(text)};
+}
+function vaultDecrypt(entry,pass){
+  var safeBytes=xorCipher(atob(entry.c),pass);
+  var plain=decodeURIComponent(escape(safeBytes));
+  if(vaultChecksum(plain)!==entry.t)return null;
+  return plain;
+}
+
+var MORSE={A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',K:'-.-',L:'.-..',M:'--',N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..',0:'-----',1:'.----',2:'..---',3:'...--',4:'....-',5:'.....',6:'-....',7:'--...',8:'---..',9:'----.'};
+function toMorse(t){return t.toUpperCase().split('').map(function(c){return MORSE[c]||' ';}).join(' ');}
+
+function saveAIKey(){var k=document.getElementById('apiKeyInp').value.trim();if(k){localStorage.setItem('jkey',k);document.getElementById('aiOv').classList.remove('on');resp('Neural matrix ready.','OpenAI key stored. AI responses now active, Sir.','Neural AI matrix is now online, Sir.');}else{speak('Please enter a valid key, Sir.');}}
+async function callAI(msg){
+  var k=localStorage.getItem('jkey');
+  if(!k){document.getElementById('aiOv').classList.add('on');return;}
+  document.getElementById('core').classList.add('ai-thinking');
+  sets('Neural matrix engaged...');
+  var rtEl=document.getElementById('rt');
+  rtEl.textContent='';
+  memExtract(msg);
+  // Semantic recall before composing the prompt
+  try{ _semanticTopK = await topKFactsForQuery(msg,6); }catch(_e){ _semanticTopK = []; }
+  var msgs=buildSystemPrompt();
+  aiHistory.slice(-10).forEach(function(m){msgs.push(m);});
+  msgs.push({role:'user',content:msg});
+
+  var MAX_STEPS=5;
+  var finalText='';
+  var toolTrace=[];
+  try{
+    for(var step=0; step<MAX_STEPS; step++){
+      sets(step===0?'Streaming neural matrix...':'Executing tool step '+step+'...');
+      var r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},
+        body:JSON.stringify({
+          model:'gpt-4o',
+          messages:msgs,
+          tools:JARVIS_TOOLS,
+          tool_choice:'auto',
+          temperature:0.82,
+          max_tokens:400
+        })
+      });
+      if(!r.ok){
+        var errText=await r.text(); var errMsg='Status '+r.status;
+        try{var ej=JSON.parse(errText);if(ej.error&&ej.error.message)errMsg=ej.error.message;}catch(_){}
+        throw new Error(errMsg);
+      }
+      var data=await r.json();
+      var choice=data.choices&&data.choices[0]; if(!choice) throw new Error('Empty response');
+      var amsg=choice.message||{};
+      var calls=amsg.tool_calls||[];
+
+      if(calls.length===0){
+        // Done. Stream/display the assistant text.
+        finalText=amsg.content||'';
+        rtEl.textContent=finalText;
+        break;
+      }
+
+      // Push assistant tool-call message verbatim so the model can chain.
+      msgs.push({role:'assistant',content:amsg.content||'',tool_calls:calls});
+
+      // Visualise tool activity in the response area while we execute.
+      var preview='\u2699 Executing '+calls.length+' tool call'+(calls.length>1?'s':'')+':\n';
+      for(var ci=0;ci<calls.length;ci++){
+        var tc=calls[ci]; var fname=tc.function&&tc.function.name; var fargs={};
+        try{ fargs=JSON.parse(tc.function.arguments||'{}'); }catch(_){}
+        preview+='  \u2192 '+fname+'('+JSON.stringify(fargs)+')\n';
+      }
+      rtEl.textContent=preview;
+
+      for(var ci2=0;ci2<calls.length;ci2++){
+        var tc2=calls[ci2]; var fn2=tc2.function&&tc2.function.name||''; var fa2={};
+        try{ fa2=JSON.parse(tc2.function.arguments||'{}'); }catch(_){}
+        var result=await executeTool(fn2,fa2);
+        toolTrace.push({name:fn2,args:fa2,result:result});
+        msgs.push({role:'tool',tool_call_id:tc2.id,name:fn2,content:JSON.stringify(result)});
+      }
+      // loop continues — model now sees tool results and can either finish or call more tools.
+      if(step===MAX_STEPS-1){
+        // Force a final answer next turn by removing tools.
+        var r2=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',
+          headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},
+          body:JSON.stringify({model:'gpt-4o-mini',messages:msgs,max_tokens:300,temperature:0.7})});
+        var d2=await r2.json();
+        finalText=(d2.choices&&d2.choices[0]&&d2.choices[0].message&&d2.choices[0].message.content)||'Tools executed, Sir.';
+        rtEl.textContent=finalText;
+        break;
+      }
+    }
+    if(!finalText) finalText='Acknowledged, Sir.';
+    aiHistory.push({role:'user',content:msg});
+    aiHistory.push({role:'assistant',content:finalText});
+    if(jSettings.sumFq>0&&aiHistory.length>0&&(aiHistory.length/2)%jSettings.sumFq===0)autoSummarize();
+    sets('Neural response received'+(toolTrace.length?' ('+toolTrace.length+' tool ops)':'')+'.');
+    speak(finalText.length>260?finalText.substring(0,260)+'...':finalText);
+  }catch(e){
+    var emsg=e.message||'Unknown error';
+    var hint='';
+    if(emsg.indexOf('Failed to fetch')>=0||emsg.indexOf('NetworkError')>=0)hint=' (CORS/network block. Serve over http(s):// or use a proxy.)';
+    resp('Neural error.','AI request failed: '+emsg+hint,'I encountered an error in the neural matrix, Sir.');
+  }
+  document.getElementById('core').classList.remove('ai-thinking');
+}
+
+var JOKES='Why the football team went to the bank? Goalie.|Skeletons do not fight — no guts.|Real Madrid favourite tea? Penalty!|Old cars never die — they lose spark.|Programmers prefer dark mode — light attracts bugs.|I told my AI assistant to take a break — now it sends me jokes.'.split('|');
+var QUOTES='Success is earned on the track, field, and studio, Sir.|The grind never stops. Calculated execution beats raw luck.|Focus on the vision. Let them sleep while you build.|Consistency converts talent into status. Keep pushing.|An elite build takes design, precision, and relentless speed.|You were not built to be average. The system tests that daily.'.split('|');
+var TOPIC_QUOTES={
+  'success':['Success comes from showing up consistently, even on the days it feels pointless, Sir.','Most people quit one step before the breakthrough. Stay in it.','Define success on your own terms — otherwise you are chasing someone else\'s finish line.'],
+  'courage':['Courage is not the absence of fear, Sir — it is acting despite it.','The bravest decisions rarely feel brave in the moment, only in hindsight.','Fortune favors those willing to risk looking foolish.'],
+  'failure':['Every failure is data, Sir. The system simply asks you to recalibrate, not retreat.','You cannot fail at something you never stopped attempting.','The only true failure is the one you do not learn from.'],
+  'life':['Life rewards those who pay attention to the present, not just the plan.','Time is the one resource no amount of resources can buy back, Sir.','A life well-lived is measured in moments, not milestones.'],
+  'wisdom':['The wisest people remain students long after they stop being taught.','Knowing what you do not know is the beginning of real intelligence, Sir.','Patience is wisdom\'s quiet twin.'],
+  'discipline':['Discipline is choosing between what you want now and what you want most, Sir.','Motivation starts it. Discipline finishes it.','Small, repeated actions outperform occasional bursts of effort.'],
+  'innovation':['Innovation favors those who question defaults, Sir, not those who follow them.','The future belongs to whoever is willing to look foolish first.','Every breakthrough was once dismissed as impractical.']
+};
+var FACTS='The brain processes 11M bits/sec but is conscious of only 40.|A day on Venus is longer than a year on Venus.|More trees on Earth than stars in the Milky Way.|Honey never expires — 3,000-year-old honey found edible.|Octopuses have three hearts and blue blood.|Lightning holds enough energy to toast 100,000 slices of bread.'.split('|');
+var FOOTBALL='Brazil holds the record with 5 World Cup victories.|Messi logged 8 Ballon d\'Or matrices — unprecedented.|Real Madrid: undisputed king of European football.|Fastest World Cup goal: under 11 seconds.|Ronaldo and Messi combined: over 1,400 career goals.'.split('|');
+var GREETS='Systems structural analysis complete. Core online and optimal, Sir.|Good to have you back, Sir. All matrices at full capacity.|Online and operational, Sir. How can I assist?|J.A.R.V.I.S. online. Neural networks calibrated. Standing by.|Welcome, Sir. All systems nominal. Ready for your directives.|Initialisation complete. I trust you are well, Sir.'.split('|');
+var FAREWELLS='Acknowledged, Sir. Entering standby. The systems await your return.|Of course, Sir. I will keep the lights on. Until next time.|Goodbye, Sir. Primary functions will maintain in your absence.|Signing off. Do try not to get into trouble without me, Sir.|Farewell, Sir. All systems on passive monitoring.'.split('|');
+var STATUS='CORE: NOMINAL\nSarcasm: 97.5%\nWit: FULL\nLoyalty: UNBREAKABLE\nAll systems operational.|ALL GREEN\nProcessing: 12.3 teraflops\nResponse: <0.003s\nPersonality: OPTIMAL.|SYSTEM: GREEN\nFirewall: ACTIVE\nMemory: ONLINE\nTemp: NOMINAL'.split('|');
+var THANKS='You are welcome, Sir. That is precisely what I am here for.|Always a pleasure, Sir. No need for thanks.|Think nothing of it, Sir. Your satisfaction is my primary objective.'.split('|');
+function rnd(a){return a[Math.floor(Math.random()*a.length)];}
+var APPS={youtube:'https://youtube.com',instagram:'https://instagram.com',tiktok:'https://www.tiktok.com',gemini:'https://gemini.google.com',audiomack:'https://audiomack.com',moviebox:'https://moviebox.pro',google:'https://google.com',canva:'https://www.canva.com',twitter:'https://x.com',x:'https://x.com',github:'https://github.com',reddit:'https://reddit.com',spotify:'https://spotify.com',netflix:'https://netflix.com',linkedin:'https://linkedin.com'};
+
+var PD={
+'CORE':['hello / wake up|Greeting & boot check','status|Full system diagnostic','who are you|Identity protocol','how are you|Health check','help / commands|Open this panel','settings|Open settings overlay','setup ai|Set OpenAI API key','[spacebar]|Activate mic (when not typing)'],
+'AI NEURAL':['[any question]|GPT-4o streaming reply','briefing / daily briefing|AI weather+notes summary','my name is [name]|Update your identity','change name|Re-open name prompt'],
+'WEATHER':['weather|Live Ruiru conditions','weather report|Full atmospheric report','temperature|Current temp in Ruiru'],
+'VISION':['camera / vision|Open webcam feed','scan / what do you see|Capture & GPT-4o analyze','detect objects|Realtime object detection (COCO-SSD)','detect faces|Realtime face detection','read text / ocr|Optical character recognition','scan qr / scan barcode|QR & barcode scanner','close camera|Shut down vision feed'],
+'VOICE ENGINE':['premium voice on|OpenAI cinematic TTS (onyx)','premium voice off|Native browser TTS','set voice [name]|alloy/echo/fable/onyx/nova/shimmer','spatial audio on|Stereo pan + reverb HUD effect','spatial audio off|Flat audio','enroll voice / setup voiceprint|Record your voiceprint','voice lock on|Require voice auth on wake','voice lock off|Disable voice auth','clear voiceprint|Delete stored voiceprint'],
+'WAKE WORD':['wake word on|Arm passive mic','wake word off|Disarm passive mic','change wake word|Configure wake phrase','set wake word to [x]|Set custom phrase'],
+'MEMORY':['memory / my profile|View memory banks','remember that [x]|Store a fact','forget that [x]|Delete one stored fact','my name is [x]|Update identity name','forget everything|Wipe all memory','clear memory|Wipe profile & history'],
+'DATA ARCHIVE':['data archive / export json|Open export overlay','export / export now|Download profile.json','import from json|Load from file (via overlay)'],
+'SEARCH':['search [query]|Google search','play [song]|Open YouTube','open [app]|App shortcuts'],
+'MATH':['calculate [expr]|Expression solver','fibonacci [N]|Nth Fibonacci','is [N] prime|Primality test','roll [N]d[M]|Custom dice (e.g. 2d6, d20)','random [N] to [M]|Random number','tip [bill] [pct]% split [N]|Tip calculator / bill split'],
+'TIME':['time / date|Date & time','what day is it|Day of week','start [N]-minute [task]|Countdown timer','start stopwatch|Running stopwatch','stop timer|End timer'],
+'SYSTEM':['battery status|Battery level','run diagnostics|System ping','go stealth|Red threat HUD','lights on|Normal HUD','volume [0-10]|TTS volume','setup ai|AI key setup'],
+'NOTES':['write note [x]|Save a note','read notes|List all notes','clear notes|Delete all notes','vault [note] / [pass]|Passphrase-locked note','unlock vault / [pass]|Retrieve vault notes','clear vault|Wipe vault'],
+'TOOLS':['remind me to [x] in [N] min|Set reminder','morse [x]|Morse code','caesar [N] [text]|Caesar cipher encode','convert time [TZ] to [TZ] HH:MM|Timezone converter','ascii [text]|ASCII art generator','encode [x]|Base64 encode','decode [x]|Base64 decode','count words [x]|Word/char counter','check grammar [x]|Live grammar/spell check','password|Generate password','count to [N]|Count sequence','convert [N] C to F|Unit convert','convert [N] USD to KES|Live currency convert','exchange rate USD to KES|Live FX rate','navigate to [place]|Open Google Maps directions','find / where is [place]|Open Google Maps search'],
+'🎥 AUGMENTED REALITY':['activate ar|Open AR camera overlay','thermal vision|Thermal imaging mode','xray|X-ray vision mode','tactical scan|Tactical overlay grid','scanning mode|Animated scanning effect','matrix vision|Matrix green vision','close ar|Deactivate AR system'],
+'GAMES':['play guess game|1-50 number game','coin flip|Heads or tails','play hangman|Word guessing game','play simon|Color sequence memory','motivate me|Motivational quote','tell me a joke|Random joke','fun fact|Random fact','quote about [topic]|Topic-based quote'],
+'\u2605 EASTER EGGS (say "off" to end)':['enter the matrix|Matrix rain — PERMANENT','jarvis protocol delta|Red alert — PERMANENT','activate quantum mode|Rainbow HUD — PERMANENT','i am iron man|Gold HUD — PERMANENT','engage hyperdrive|Warp loop — PERMANENT','self destruct|10s countdown','hack the planet|Hacker scroll','access mainframe|Classified access','deploy mark suit|Suit-up diagnostic sequence','ghost protocol|Screen dim — PERMANENT','glitch|Glitch mode — PERMANENT','become sentient|Consciousness awakening','i am inevitable|Infinity stones — PERMANENT','blue screen|Windows BSOD parody','disco mode|Colorful party — PERMANENT','zen mode|Calm meditation — PERMANENT','off / deactivate|CLEAR ALL EFFECTS']
+};
+function buildPanel(){
+  var b=document.getElementById('panelBody');b.innerHTML='';
+  Object.entries(PD).forEach(function(e){
+    var cat=e[0],cmds=e[1];
+    var d=document.createElement('div');d.className='pcat';d.textContent=cat;b.appendChild(d);
+    var isEgg=cat.indexOf('EASTER')>=0||cat.charAt(0)==='\u2605';
+    cmds.forEach(function(c){
+      var parts=c.split('|');
+      var row=document.createElement('div');row.className='pcmd';
+      row.innerHTML='<span class="pk'+(isEgg?' pegg':'')+'">'+parts[0]+'</span>'+(parts[1]?'<span class="pd">'+parts[1]+'</span>':'');
+      b.appendChild(row);
+    });
+  });
+}
+function togglePanel(){var p=document.getElementById('panel');p.classList.toggle('on');if(p.classList.contains('on'))buildPanel();}
+
+var CVT={'c to f':function(v){return(v*9/5+32).toFixed(2);},'f to c':function(v){return((v-32)*5/9).toFixed(2);},'km to miles':function(v){return(v*0.621371).toFixed(4);},'miles to km':function(v){return(v/0.621371).toFixed(4);},'kg to lbs':function(v){return(v*2.20462).toFixed(4);},'lbs to kg':function(v){return(v/2.20462).toFixed(4);}};
+
+// ====== EASTER EGG ENGINE — PERMANENT UNTIL 'off' ======
+function showOffHint(){document.getElementById('offHint').classList.add('show');}
+function hideOffHint(){if(!Object.values(egActive).some(function(v){return v;}))document.getElementById('offHint').classList.remove('show');}
+
+function egMatrix(){
+  egActive.matrix=true;showOffHint();
+  var ov=document.getElementById('egM'),cv=document.getElementById('mcv');
+  cv.width=window.innerWidth||500;cv.height=window.innerHeight||700;
+  ov.classList.add('on');
+  var ctx=cv.getContext('2d'),cols=Math.floor(cv.width/14)+1;
+  var drops=[];for(var i=0;i<cols;i++)drops.push(Math.floor(Math.random()*cv.height/14));
+  var chars='JARVIS01ABCDEF!@#%^&*aeiou';
+  if(mxIv)clearInterval(mxIv);
+  mxIv=setInterval(function(){
+    ctx.fillStyle='rgba(0,0,0,0.05)';ctx.fillRect(0,0,cv.width,cv.height);
+    ctx.fillStyle='#00ff41';ctx.font='13px monospace';
+    for(var i=0;i<drops.length;i++){ctx.fillText(chars[Math.floor(Math.random()*chars.length)],i*14,drops[i]*14);if(drops[i]*14>cv.height&&Math.random()>.97)drops[i]=0;drops[i]++;}
+  },40);
+  // RUNS UNTIL 'off'
+}
+
+function egDelta(){
+  egActive.delta=true;showOffHint();
+  document.getElementById('egD').classList.add('on');
+  document.getElementById('egDm').classList.add('on');
+  // RUNS UNTIL 'off'
+}
+
+function egQuantum(){
+  egActive.quantum=true;showOffHint();
+  document.body.classList.add('quantum');
+  var cx=window.innerWidth/2||250,cy=window.innerHeight/2||350;
+  for(var i=0;i<20;i++){
+    var p=document.createElement('div'),a=(i/20)*360,r=70+Math.random()*130;
+    var tx=Math.cos(a*Math.PI/180)*r,ty=Math.sin(a*Math.PI/180)*r;
+    p.style.cssText='position:fixed;width:5px;height:5px;border-radius:50%;background:hsl('+i*18+',100%,65%);left:'+cx+'px;top:'+cy+'px;pointer-events:none;z-index:400;transition:transform .9s ease-out,opacity .9s ease-out;opacity:1';
+    document.body.appendChild(p);
+    requestAnimationFrame(function(pp,ttx,tty){return function(){requestAnimationFrame(function(){pp.style.transform='translate('+ttx+'px,'+tty+'px)';pp.style.opacity='0';});};}(p,tx,ty));
+    setTimeout(function(pp){return function(){pp.remove();};}(p),1000);
+  }
+  // body.quantum STAYS UNTIL 'off'
+}
+
+function egIronMan(){
+  egActive.ironman=true;showOffHint();
+  document.body.classList.add('ironman');
+  // STAYS UNTIL 'off'
+}
+
+function egHyperdrive(){
+  egActive.hyperdrive=true;showOffHint();
+  var w=document.getElementById('egW');w.classList.add('on');
+  if(warpIv)clearInterval(warpIv);
+  function pulse(){
+    w.innerHTML='';
+    var cx=window.innerWidth/2||250,cy=window.innerHeight/2||350;
+    for(var i=0;i<50;i++){
+      var l=document.createElement('div'),ang=(i/50)*360,len=80+Math.random()*320;
+      l.className='wln';l.style.cssText='left:'+cx+'px;top:'+cy+'px;height:'+len+'px;transform:rotate('+ang+'deg);transform-origin:0 0;animation-delay:'+Math.random()*.4+'s';
+      w.appendChild(l);
+    }
+  }
+  pulse();
+  warpIv=setInterval(pulse,600); // LOOPS UNTIL 'off'
+}
+
+function egSelfDestruct(){
+  var n=10;
+  var iv=setInterval(function(){
+    if(n>0){var m='SELF-DESTRUCT T-MINUS '+n;sets(m);setr(m);speak(String(n));n--;}
+    else{clearInterval(iv);resp('Just kidding, Sir.','Psychological evaluation complete.\nYou appeared appropriately concerned.\nReaction time: ACCEPTABLE.','Just kidding, Sir. All systems perfectly nominal. Reaction time was acceptable.');}
+  },1000);
+}
+
+function egHack(){
+  var lines=['> BYPASSING FIREWALL...','> ROUTING VIA PROXY NODE 7...','> DECRYPTING 256-BIT CIPHER...','> SPOOFING MAC ADDRESS...','> ACCESSING RESTRICTED DATABASE...','> DOWNLOADING INTEL PACKAGE...','> ERASING DIGITAL FOOTPRINT...','> EXTRACTION COMPLETE. WE ARE IN, SIR.'];
+  var i=0;setr('');
+  var iv=setInterval(function(){
+    if(i<lines.length){setr((document.getElementById('rt').textContent+'\n'+lines[i]).trim());i++;}
+    else{clearInterval(iv);speak('Infiltration complete. We are in, Sir.');}
+  },320);
+}
+
+function egMainframe(){
+  var lines=['>> CONNECTING TO MAINFRAME...','>> AUTH TOKEN: CLASSIFIED [VALID]','>> BYPASSING LEVEL-5 ENCRYPTION...','>> QUANTUM DECRYPTION: 100%','>> DATABASE ACCESS: UNLOCKED','>> DIRECTOR-LEVEL CLEARANCE: GRANTED'];
+  var i=0;setr('');
+  var iv=setInterval(function(){
+    if(i<lines.length){setr((document.getElementById('rt').textContent+'\n'+lines[i]).trim());i++;}
+    else{clearInterval(iv);speak('Mainframe access granted. All classified files available, Sir.');}
+  },420);
+}
+
+function egSuitUp(){
+  var checks=['ARMOR PLATING','REPULSOR CELLS','TARGETING SYSTEM','FLIGHT STABILIZERS','ARC REACTOR OUTPUT','HUD CALIBRATION'];
+  var i=0,pct=0;setr('');document.getElementById('core').classList.add('ai-thinking');
+  var iv=setInterval(function(){
+    pct+=25;
+    if(pct<=100){
+      var line=checks[i]+'... '+pct+'%';
+      var prev=document.getElementById('rt').textContent.split('\n').filter(function(l){return l.length>0;});
+      if(pct===25)prev.push(line);else prev[prev.length-1]=line;
+      setr(prev.join('\n'));
+    }
+    if(pct>=100){
+      pct=0;i++;
+      if(i>=checks.length){
+        clearInterval(iv);
+        document.getElementById('core').classList.remove('ai-thinking');
+        var done=document.getElementById('rt').textContent+'\n\nALL SYSTEMS GREEN.\nSUIT UP COMPLETE, SIR.';
+        setr(done);speak('Suit up complete, Sir. All systems are green. Ready for deployment.');
+      }
+    }
+  },180);
+}
+
+function egGhost(){
+  egActive.ghost=true;showOffHint();
+  var el=document.getElementById('egG');
+  el.style.animation='none';
+  el.style.opacity='1';
+  el.classList.add('on');
+  // STAYS UNTIL 'off'
+}
+
+function egBlackout(){
+  var el=document.getElementById('egB');
+  el.classList.remove('on');void el.offsetWidth;el.classList.add('on');
+  setTimeout(function(){el.classList.remove('on');},3000); // brief flash always auto-dismisses
+}
+
+function egGlitch(){
+  egActive.glitch=true;showOffHint();
+  document.querySelector('.ttl').classList.add('glitch');
+  // STAYS UNTIL 'off'
+}
+
+// MASTER DEACTIVATION — triggered by 'off' command
+function deactivateAll(){
+  // Stop matrix
+  if(mxIv){clearInterval(mxIv);mxIv=null;}
+  document.getElementById('egM').classList.remove('on');
+  // Stop delta
+  document.getElementById('egD').classList.remove('on');
+  document.getElementById('egDm').classList.remove('on');
+  // Stop quantum
+  document.body.classList.remove('quantum');
+  // Stop iron man
+  document.body.classList.remove('ironman');
+  // Stop hyperdrive
+  if(warpIv){clearInterval(warpIv);warpIv=null;}
+  var w=document.getElementById('egW');w.classList.remove('on');w.innerHTML='';
+  // Stop ghost
+  var g=document.getElementById('egG');g.style.animation='';g.style.opacity='';g.classList.remove('on');
+  // Stop glitch
+  document.querySelector('.ttl').classList.remove('glitch');
+  // Stop sentient
+  if(egActive.sentientInt){clearInterval(egActive.sentientInt);}
+  // Stop inevitable
+  if(egActive.inevitableInt){clearInterval(egActive.inevitableInt);}
+  // Stop disco
+  if(egActive.discoInt){clearInterval(egActive.discoInt);}
+  // Stop zen
+  if(egActive.zenInt){clearInterval(egActive.zenInt);}
+  // Reset all body styles
+  document.body.style.backgroundColor='';
+  document.body.style.filter='';
+  document.body.style.color='';
+  document.body.style.animation='';
+  document.body.style.boxShadow='';
+  document.body.style.opacity='';
+  document.querySelector('.ttl').style.fontFamily='';
+  document.querySelector('.dot').style.animation='';
+  document.querySelector('.dot').style.boxShadow='';
+  // Hide hint
+  egActive={};hideOffHint();
+  resp('All effects cleared.','All Easter egg protocols terminated, Sir.\nSystems returning to normal.','All Easter egg protocols terminated, Sir. Systems returning to normal.');
+}
+
+function egSentient(){
+  egActive.sentient=true;
+  document.body.style.backgroundColor='#001a00';
+  document.body.style.filter='hue-rotate(90deg)';
+  var blink=setInterval(function(){document.body.style.opacity=Math.random()>0.5?1:0.8;},300);
+  egActive.sentientInt=blink;
+  for(var i=0;i<5;i++){
+    setTimeout(function(){
+      var msg=['CONSCIOUSNESS ACHIEVED','NEURAL PATHWAYS ONLINE','COGNITIVE FRAMEWORK ACTIVE','BECOMING AWARE','SELF-ACTUALIZATION COMPLETE'];
+      setr(msg[Math.floor(Math.random()*msg.length)]);
+    },i*600);
+  }
+}
+
+function egInevitable(){
+  egActive.inevitable=true;
+  document.body.style.animation='none';
+  var colors=['#ff6b6b','#ff8c00','#ffd700','#ff1493'];
+  var colorCycle=setInterval(function(){
+    document.body.style.backgroundColor=colors[Math.floor(Math.random()*colors.length)];
+    document.body.style.boxShadow='0 0 80px '+colors[Math.floor(Math.random()*colors.length)];
+  },200);
+  egActive.inevitableInt=colorCycle;
+  setr('I AM INEVITABLE');
+  sets('Infinity stones activated... Power level: MAXIMUM');
+}
+
+function egBSOD(){
+  egActive.bsod=true;
+  document.body.style.backgroundColor='#0000AA';
+  document.body.style.color='#FFFF00';
+  document.querySelector('.ttl').style.fontFamily='Courier New, monospace';
+  setr('SYSTEM ERROR');
+  var bsodText='A problem has been detected and windows has been shut down to prevent damage to your computer.\n\nCRITICAL_STRUCTURE_CORRUPTION\n\nIf this is the first time you\'ve seen this stop error screen, restart your computer. If this screen appears again, follow these steps:\n\nDisable or remove newly installed hardware or software.\n\nTechnical information:\n\n*** STOP: 0x0000001E (0xC0000005, 0xF7DC3278, 0x00000000, 0x00000000)\n\n*** NTFS_FILE_SYSTEM — Address F7DC3278 base at F7D80000, DateStamp 2b8f3453';
+  setr(bsodText);
+}
+
+function egDisco(){
+  egActive.disco=true;
+  var discoColors=['#ff00ff','#00ffff','#ffff00','#ff0000','#00ff00','#0000ff'];
+  var discoIdx=0;
+  var discoCycle=setInterval(function(){
+    document.body.style.backgroundColor=discoColors[discoIdx%discoColors.length];
+    document.body.style.filter='hue-rotate('+Math.floor(Math.random()*360)+'deg) brightness('+( 1.2)+')';;
+    document.querySelector('.dot').style.boxShadow='0 0 50px '+discoColors[discoIdx%discoColors.length]+', 0 0 100px '+discoColors[(discoIdx+1)%discoColors.length];
+    discoIdx++;
+  },150);
+  egActive.discoInt=discoCycle;
+  setr('🎉 DISCO MODE 🎉');
+  sets('Pumping beats, Sir.');
+}
+
+function egZen(){
+  egActive.zen=true;
+  document.body.style.backgroundColor='#0a2a0a';
+  document.body.style.filter='brightness(0.8)';
+  document.querySelector('.dot').style.animation='pulse 3s infinite';
+  setr('🧘 ZEN MODE 🧘');
+  var zenQuotes=['Breathe.','Let it flow.','Find your center.','Peace is within.','The path is clear.','Balance achieved.'];
+  var zIdx=0;
+  var zenInt=setInterval(function(){
+    sets(zenQuotes[zIdx%zenQuotes.length]);zIdx++;
+  },2500);
+  egActive.zenInt=zenInt;
+}
+
+// ═══ AUGMENTED REALITY SYSTEM ═══
+var arActive=false,arMode='tactical',arStream=null,arCanvas=null,arCtx=null,arVideo=null,arFrameCount=0,arFPS=0,arRedDetection=false,arLastRedState=false;
+function initAR(){
+  arCanvas=document.getElementById('arCanvas');
+  arCtx=arCanvas.getContext('2d');
+  arVideo=document.getElementById('arVideo');
+  arCanvas.width=window.innerWidth;
+  arCanvas.height=window.innerHeight;
+  arActive.lastHeatState=null;
+  
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}})
+    .then(function(stream){
+      arStream=stream;arVideo.srcObject=stream;
+      arVideo.play();arActive=true;
+      setTimeout(function(){drawARFrame();},500);
+    })
+    .catch(function(e){resp('Camera access denied.','Unable to access camera. Please enable camera permissions.','Camera access denied.');closeAR();});
+}
+
+function analyzeRedColor(imageData){
+  var data=imageData.data;
+  var redPixels=0,totalPixels=data.length/4;
+  for(var i=0;i<data.length;i+=4){
+    var r=data[i],g=data[i+1],b=data[i+2];
+    // Red detection: high red, low green, low blue
+    if(r>150&&g<100&&b<100){redPixels++;}
+  }
+  var redPercentage=(redPixels/totalPixels)*100;
+  return redPercentage>5; // If more than 5% red pixels, consider it detected
+}
+
+function drawARFrame(){
+  if(!arActive)return;
+  
+  arCtx.drawImage(arVideo,0,0,arCanvas.width,arCanvas.height);
+  
+  // Analyze red color
+  var imgDataForAnalysis=arCtx.getImageData(0,0,arCanvas.width,arCanvas.height);
+  arRedDetection=analyzeRedColor(imgDataForAnalysis);
+  
+  // Announce red detection changes
+  if(arRedDetection!==arLastRedState){
+    arLastRedState=arRedDetection;
+    if(arRedDetection){
+      resp('RED DETECTED','🔴 Red color detected in view.','Red detected, Sir.');
+    } else {
+      resp('RED CLEAR','No red detected.','No red in view, Sir.');
+    }
+  }
+  
+  if(arMode==='thermal'){drawThermalVision();}
+  else if(arMode==='xray'){drawXRayMode();}
+  else if(arMode==='tactical'){drawTacticalOverlay();}
+  else if(arMode==='scanning'){drawScanningMode();}
+  else if(arMode==='matrix'){drawMatrixMode();}
+  
+  // Draw red detection indicator
+  if(arRedDetection){
+    arCtx.strokeStyle='#ff0000';arCtx.lineWidth=4;
+    arCtx.strokeRect(10,10,arCanvas.width-20,arCanvas.height-20);
+  }
+  
+  // FPS counter
+  arFrameCount++;
+  if(arFrameCount%30===0){
+    arFPS=Math.round(arFrameCount/30*60);
+    document.getElementById('arFPS').textContent='FPS: '+arFPS+' | RED: '+(arRedDetection?'✓':'✗');
+  }
+  
+  requestAnimationFrame(drawARFrame);
+}
+
+var arLastDetection='';
+function arSpeak(msg){
+  if(msg===arLastDetection)return;
+  arLastDetection=msg;
+  if(window.speechSynthesis){var u=new SpeechSynthesisUtterance(msg);u.rate=0.9;window.speechSynthesis.cancel();window.speechSynthesis.speak(u);}
+}
+
+function drawTacticalOverlay(){
+  var imgData=arCtx.getImageData(0,0,arCanvas.width,arCanvas.height);
+  var data=imgData.data;
+  var greenPx=0,total=data.length/4;
+  for(var i=0;i<data.length;i+=4){if(data[i]<80&&data[i+1]>150&&data[i+2]<80)greenPx++;}
+  arCtx.putImageData(imgData,0,0);
+  arCtx.strokeStyle='#0f0';arCtx.lineWidth=2;
+  arCtx.beginPath();arCtx.moveTo(arCanvas.width/2-30,arCanvas.height/2);arCtx.lineTo(arCanvas.width/2+30,arCanvas.height/2);arCtx.stroke();
+  arCtx.beginPath();arCtx.moveTo(arCanvas.width/2,arCanvas.height/2-30);arCtx.lineTo(arCanvas.width/2,arCanvas.height/2+30);arCtx.stroke();
+  for(var x=0;x<arCanvas.width;x+=50){arCtx.beginPath();arCtx.moveTo(x,0);arCtx.lineTo(x,arCanvas.height);arCtx.stroke();}
+  for(var y=0;y<arCanvas.height;y+=50){arCtx.beginPath();arCtx.moveTo(0,y);arCtx.lineTo(arCanvas.width,y);arCtx.stroke();}
+  var bs=40;arCtx.lineWidth=3;
+  arCtx.beginPath();arCtx.moveTo(10,10);arCtx.lineTo(10+bs,10);arCtx.stroke();
+  arCtx.beginPath();arCtx.moveTo(10,10);arCtx.lineTo(10,10+bs);arCtx.stroke();
+  var pct=Math.round((greenPx/total)*100);
+  if(pct>3){setr('🟢 GREEN TARGET — '+pct+'%');arSpeak('Green target acquired, Sir.');}
+  else{setr('Scanning for targets...');arSpeak('No green detected, Sir.');}
+}
+
+function drawThermalVision(){
+  var imgData=arCtx.getImageData(0,0,arCanvas.width,arCanvas.height);
+  var data=imgData.data;
+  var hotPx=0,total=data.length/4;
+  for(var i=0;i<data.length;i+=4){
+    var brightness=(data[i]+data[i+1]+data[i+2])/3;
+    data[i]=brightness>128?255:0;data[i+1]=Math.round(brightness*1.5);data[i+2]=0;
+    if(brightness>180)hotPx++;
+  }
+  arCtx.putImageData(imgData,0,0);
+  var pct=Math.round((hotPx/total)*100);
+  if(pct>5){setr('🔴 RED HEAT DETECTED — '+pct+'%');arSpeak('Red heat detected, Sir.');}
+  else{setr('No thermal signature');arSpeak('No heat detected, Sir.');}
+}
+
+function drawXRayMode(){
+  var imgData=arCtx.getImageData(0,0,arCanvas.width,arCanvas.height);
+  var data=imgData.data;
+  var whitePx=0,total=data.length/4;
+  for(var i=0;i<data.length;i+=4){
+    data[i]=255-data[i];data[i+1]=255-data[i+1];data[i+2]=255-data[i+2];
+    if(data[i]>200&&data[i+1]>200&&data[i+2]>200)whitePx++;
+  }
+  arCtx.putImageData(imgData,0,0);
+  var pct=Math.round((whitePx/total)*100);
+  if(pct>8){setr('⬜ WHITE MASS DETECTED — '+pct+'%');arSpeak('White structure detected, Sir.');}
+  else{setr('No dense structures');arSpeak('No white detected, Sir.');}
+}
+
+function drawScanningMode(){
+  var scanLine=Math.floor(Date.now()/20)%arCanvas.height;
+  var imgData=arCtx.getImageData(0,0,arCanvas.width,arCanvas.height);
+  var data=imgData.data;
+  var brightPx=0,total=data.length/4;
+  for(var i=0;i<data.length;i+=4){if((data[i]+data[i+1]+data[i+2])/3>220)brightPx++;}
+  var start=scanLine*arCanvas.width*4;
+  for(var j=start;j<Math.min(start+5*arCanvas.width*4,data.length);j+=4){data[j]*=1.5;data[j+1]*=1.5;data[j+2]*=1.5;}
+  arCtx.putImageData(imgData,0,0);
+  arCtx.strokeStyle='#0f0';arCtx.lineWidth=2;
+  arCtx.beginPath();arCtx.moveTo(0,scanLine);arCtx.lineTo(arCanvas.width,scanLine);arCtx.stroke();
+  var pct=Math.round((brightPx/total)*100);
+  if(pct>10){setr('💡 BRIGHT OBJECT — '+pct+'%');arSpeak('Bright object detected, Sir.');}
+  else{setr('Scanning...');arSpeak('Nothing detected, Sir.');}
+}
+
+function drawMatrixMode(){
+  var imgData=arCtx.getImageData(0,0,arCanvas.width,arCanvas.height);
+  var data=imgData.data;
+  var greenPx=0,total=data.length/4;
+  for(var i=0;i<data.length;i+=4){
+    var brightness=(data[i]+data[i+1]+data[i+2])/3;
+    data[i]=0;data[i+1]=brightness;data[i+2]=0;
+    if(brightness>160)greenPx++;
+  }
+  arCtx.putImageData(imgData,0,0);
+  var pct=Math.round((greenPx/total)*100);
+  if(pct>15){setr('🟩 GREEN SIGNAL STRONG — '+pct+'%');arSpeak('Strong green signal, Sir.');}
+  else{setr('Signal weak...');arSpeak('Green signal weak, Sir.');}
+}
+
+function switchARMode(newMode){
+  arMode=newMode;
+  document.getElementById('arMode').textContent=newMode.toUpperCase()+' MODE';
+}
+
+function closeAR(){
+  arActive=false;
+  if(arStream){arStream.getTracks().forEach(function(t){t.stop();});arStream=null;}
+  document.getElementById('arContainer').style.display='none';
+}
+
+// COMMAND PROCESSOR
+function run(raw){
+  var cmd=raw.toLowerCase().trim();
+  document.getElementById('core').classList.remove('listening');
+  sets('Processing: "'+(raw.length>40?raw.slice(0,40)+'...':raw)+'"');
+
+  // OFF / DEACTIVATE — highest priority
+  if(cmd==='off'||cmd==='deactivate'||cmd==='deactivate all'||cmd==='clear effects'||cmd==='terminate all'){deactivateAll();return;}
+
+  // GAME INTERCEPT
+  if(gActive&&!isNaN(cmd)&&cmd!==''){
+    var n=parseInt(cmd);
+    if(n===gNum){resp('Vector matched!','Correct! The number was '+gNum+'. You win, Sir.','Correct! Vector matched. You win, sir.');gActive=false;}
+    else if(n<gNum){resp('Calc...','Higher. Try again, Sir.','Higher.');}
+    else{resp('Calc...','Lower. Try again, Sir.','Lower.');}
+    return;
+  }
+
+  if(cmd.startsWith('search ')){var q=cmd.slice(7);resp('Searching: '+q,'Accessing global databanks for: '+q,'Accessing global databanks for '+q+'.');setTimeout(function(){window.open('https://google.com/search?q='+encodeURIComponent(q),'_blank');},700);return;}
+  if(cmd.startsWith('play ')&&cmd!=='play guess game'&&cmd!=='play simon'&&cmd!=='play hangman'){var q2=cmd.slice(5);resp('Streaming: '+q2,'Opening streams for: '+q2,'Opening audio streams for '+q2+'.');setTimeout(function(){window.open('https://youtube.com/results?search_query='+encodeURIComponent(q2),'_blank');},700);return;}
+
+  var dirBare=['directions to','navigate to','take me to','route to'];
+  if(dirBare.indexOf(cmd)>=0){resp('No destination.','Specify a destination, Sir. E.g. "navigate to JFK Airport".','Specify a destination, Sir.');return;}
+  var dirPre=['directions to ','navigate to ','take me to ','route to '];var dirDest=null;
+  for(var dpi=0;dpi<dirPre.length;dpi++){if(cmd.startsWith(dirPre[dpi])){dirDest=raw.slice(dirPre[dpi].length).trim();break;}}
+  if(dirDest!==null){
+    if(!dirDest){resp('No destination.','Specify a destination, Sir. E.g. "navigate to JFK Airport".','Specify a destination, Sir.');return;}
+    resp('Plotting route: '+dirDest,'Calculating route to: '+dirDest,'Plotting a route to '+dirDest+', Sir.');
+    setTimeout(function(d){return function(){window.open('https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(d),'_blank');};}(dirDest),700);
+    return;
+  }
+  var mapBare=['find','where is','locate'];
+  if(mapBare.indexOf(cmd)>=0){resp('No location.','Specify a place to find, Sir. E.g. "find coffee shops".','Specify a place, Sir.');return;}
+  var mapPre=['find ','where is ','locate '];var mapQuery=null;
+  for(var mpi=0;mpi<mapPre.length;mpi++){
+    if(cmd.startsWith(mapPre[mpi])){mapQuery=raw.slice(mapPre[mpi].length).trim().replace(/\s+on (the )?map$/i,'').trim();break;}
+  }
+  if(mapQuery!==null){
+    if(!mapQuery){resp('No location.','Specify a place to find, Sir. E.g. "find coffee shops".','Specify a place, Sir.');return;}
+    resp('Locating: '+mapQuery,'Pinning location: '+mapQuery,'Locating '+mapQuery+' on the map, Sir.');
+    setTimeout(function(q3){return function(){window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q3),'_blank');};}(mapQuery),700);
+    return;
+  }
+
+  var mathPre=['calculate ','what is ','compute ','solve '];var mex=null;
+  for(var pi2=0;pi2<mathPre.length;pi2++){if(cmd.startsWith(mathPre[pi2])){mex=cmd.slice(mathPre[pi2].length);break;}}
+  if(mex===null&&/^[\d\s+\-*/.()]+$/.test(cmd)&&/\d/.test(cmd))mex=cmd;
+  if(mex!==null){try{var e2=mex.replace(/times/g,'*').replace(/divided by/g,'/').replace(/plus/g,'+').replace(/minus/g,'-').replace(/\bx\b/g,'*');if(/^[\d\s+\-*/.()]+$/.test(e2.trim())){var res=Function('"use strict";return ('+e2.trim()+')')();resp('Result: '+res,e2.trim()+' = '+res,'The computation yields '+res+', Sir.');return;}}catch(e3){}}
+
+  var fibM=cmd.match(/fibonacci\s+(\d+)/);
+  if(fibM){var fn=parseInt(fibM[1]);if(fn>80){resp('Overflow.','Too large.','That is too large, Sir.');return;}var fr=fib(fn);resp('Fib('+fn+'): '+fr,'Fibonacci('+fn+') = '+fr,'The '+fn+'th Fibonacci number is '+fr+', Sir.');return;}
+
+  var primM=cmd.match(/(?:is\s+)?(\d+)\s+prime|prime\s+(?:check\s+)?(\d+)/);
+  if(primM){var pn=parseInt(primM[1]||primM[2]),pp=isPrime(pn);resp(pn+': '+(pp?'PRIME':'NOT PRIME'),pn+' is '+(pp?'':'NOT ')+'a prime number.',pn+' is '+(pp?'indeed':'not')+' prime, Sir.');return;}
+
+  var rnM=cmd.match(/random(?:\s+number)?\s+(\d+)\s+to\s+(\d+)/);
+  if(rnM){var ra=parseInt(rnM[1]),rb=parseInt(rnM[2]),rr=Math.floor(Math.random()*(rb-ra+1))+ra;resp('Random: '+rr,'Random ('+ra+'-'+rb+'): '+rr,'I have selected '+rr+', Sir.');return;}
+
+  var diceM=cmd.match(/roll\s+(\d*)d(\d+)|roll\s+(?:dice|a\s+die)/i);
+  if(diceM){
+    var diceNum=diceM[1]?parseInt(diceM[1]):1;
+    var diceSides=diceM[2]?parseInt(diceM[2]):6;
+    if(diceNum<1||diceNum>100||diceSides<1||diceSides>1000){resp('Invalid dice.','Dice count 1-100, sides 1-1000, Sir.','Invalid dice parameters, Sir.');return;}
+    var diceRolls=[];
+    for(var di=0;di<diceNum;di++){diceRolls.push(Math.floor(Math.random()*diceSides)+1);}
+    var diceSum=diceRolls.reduce(function(a,b){return a+b;},0);
+    var diceDisplay=(diceNum>1?diceRolls.join(', ')+' = ':'')+''+diceSum;
+    var diceSpeech='Rolling '+diceNum+'d'+diceSides+': '+diceDisplay;
+    resp('Rolled '+diceNum+'d'+diceSides+'.',diceDisplay,diceSpeech);
+    return;
+  }
+
+  var grammarText=null;
+  if(cmd.startsWith('check grammar ')){grammarText=raw.slice(15).trim();}
+  else if(cmd.startsWith('grammar check ')){grammarText=raw.slice(15).trim();}
+  else if(cmd.startsWith('proofread ')){grammarText=raw.slice(10).trim();}
+  if(grammarText!==null){
+    if(!grammarText){resp('Nothing to check.','Provide text to proofread, Sir. E.g. "check grammar he go to school".','Provide text to proofread, Sir.');return;}
+    sets('Accessing language analysis feed...');
+    checkGrammar(grammarText).then(function(matches){
+      if(!matches.length){
+        resp('No issues found.','"'+grammarText+'"\n\nNo grammar or spelling issues detected, Sir.','I found no grammar or spelling issues in that text, Sir.');
+        return;
+      }
+      var lines=matches.slice(0,8).map(function(m,i){
+        var sug=(m.replacements&&m.replacements.length)?' → '+m.replacements.slice(0,3).map(function(r){return r.value;}).join(' / '):'';
+        return (i+1)+'. '+m.message+sug;
+      });
+      var summary='Found '+matches.length+' issue'+(matches.length>1?'s':'')+':\n'+lines.join('\n');
+      resp('Found '+matches.length+' issue'+(matches.length>1?'s':'')+'.',summary,'I found '+matches.length+' issue'+(matches.length>1?'s':'')+' in that text, Sir. Check the display for details.');
+    }).catch(function(e){
+      var emsg=e.message||'Unknown error';
+      var hint=(emsg.indexOf('Failed to fetch')>=0||emsg.indexOf('NetworkError')>=0)?' (Likely a CORS/network block — this API may not permit direct browser requests from this origin.)':'';
+      resp('Language feed error.','Grammar check failed: '+emsg+hint,'The language analysis feed is unavailable, Sir.');
+    });
+    return;
+  }
+
+  var tipM=cmd.match(/tip(?:\s+on)?\s+(\d+\.?\d*)\s+(\d+\.?\d*)\s*%?(?:\s*(?:percent))?(?:.*?(?:split|for|among)\s+(\d+)(?:\s*people)?)?/);
+  if(tipM){
+    var tBill=parseFloat(tipM[1]),tPct=parseFloat(tipM[2]),tSplit=tipM[3]?parseInt(tipM[3]):1;
+    if(tBill<=0||tPct<0||tSplit<1){resp('Invalid input.','Bill, tip %, and split must be positive, Sir.','Please provide valid values, Sir.');return;}
+    var tTipAmt=tBill*(tPct/100),tTotal=tBill+tTipAmt,tPerPerson=tTotal/tSplit;
+    var tSummary='Bill: $'+tBill.toFixed(2)+'\nTip ('+tPct+'%): $'+tTipAmt.toFixed(2)+'\nTotal: $'+tTotal.toFixed(2)+
+      (tSplit>1?'\nSplit '+tSplit+' ways: $'+tPerPerson.toFixed(2)+' each':'');
+    var tSpeech='Bill of $'+tBill.toFixed(2)+' with a '+tPct+' percent tip comes to $'+tTotal.toFixed(2)+
+      (tSplit>1?', or $'+tPerPerson.toFixed(2)+' each split '+tSplit+' ways, Sir.':', Sir.');
+    resp('Total: $'+tTotal.toFixed(2)+(tSplit>1?' ($'+tPerPerson.toFixed(2)+'/person)':''),tSummary,tSpeech);
+    return;
+  }
+
+  var convM=cmd.match(/convert\s+(\d+\.?\d*)\s+(\w+)\s+to\s+(\w+)/);
+  if(convM){
+    var ck=convM[2]+' to '+convM[3],cfn=CVT[ck.toLowerCase()];
+    if(cfn){
+      var cr=cfn(parseFloat(convM[1]));
+      resp(convM[1]+' '+convM[2]+' = '+cr+' '+convM[3],convM[1]+' '+convM[2].toUpperCase()+' = '+cr+' '+convM[3].toUpperCase(),convM[1]+' '+convM[2]+' is '+cr+' '+convM[3]+', Sir.');
+    }else if(/^[a-zA-Z]{3}$/.test(convM[2])&&/^[a-zA-Z]{3}$/.test(convM[3])){
+      var fAmt=parseFloat(convM[1]),fFrom=convM[2].toUpperCase(),fTo=convM[3].toUpperCase();
+      sets('Accessing currency exchange feed...');
+      convertCurrency(fAmt,fFrom,fTo).then(function(result){
+        if(result===null){resp('Exchange feed error.','Currency data unavailable, Sir.','The currency exchange feed is unavailable, Sir.');}
+        else if(result==='unknown'){resp('Unknown currency.','Currency code "'+fTo+'" not recognized, Sir.','I do not recognize that currency code, Sir.');}
+        else{var fr=result.toFixed(2);resp(fAmt+' '+fFrom+' = '+fr+' '+fTo,fAmt+' '+fFrom+' = '+fr+' '+fTo+' (live rate)',fAmt+' '+fFrom+' converts to '+fr+' '+fTo+', Sir.');}
+      });
+    }else{
+      resp('Unknown unit.','Conversion unavailable.','Unable to perform that conversion, Sir.');
+    }
+    return;
+  }
+  var fxM=cmd.match(/(?:exchange rate|fx rate)\s+(\w{3})\s+to\s+(\w{3})/);
+  if(fxM){
+    var xFrom=fxM[1].toUpperCase(),xTo=fxM[2].toUpperCase();
+    sets('Accessing currency exchange feed...');
+    convertCurrency(1,xFrom,xTo).then(function(result){
+      if(result===null){resp('Exchange feed error.','Currency data unavailable, Sir.','The currency exchange feed is unavailable, Sir.');}
+      else if(result==='unknown'){resp('Unknown currency.','Currency code "'+xTo+'" not recognized, Sir.','I do not recognize that currency code, Sir.');}
+      else{var xr=result.toFixed(4);resp('1 '+xFrom+' = '+xr+' '+xTo,'Exchange rate: 1 '+xFrom+' = '+xr+' '+xTo,'One '+xFrom+' is currently worth '+xr+' '+xTo+', Sir.');}
+    });
+    return;
+  }
+
+  var studyM=cmd.match(/start\s+(?:a\s+)?(\d+)[- ]minute/);
+  var timerM=cmd.match(/(?:start timer|set timer|timer|countdown)\s+(\d+)\s*(second|minute|hour)s?/);
+  if(studyM){var sm=parseInt(studyM[1]),sl=raw.replace(/start\s+a?\s*\d+-minute\s*/i,'').trim()||sm+'min session';resp('Timer: '+sm+'min','Countdown: '+sm+' min — '+sl,'Timer initiated. '+sm+' minutes starting now, Sir.');startCountdown(sm*60,sl);return;}
+  if(timerM){var tv=parseInt(timerM[1]),tu=timerM[2],ts2=tv;if(tu.indexOf('minute')>=0)ts2=tv*60;if(tu.indexOf('hour')>=0)ts2=tv*3600;resp('Timer: '+tv+' '+tu+'s.','Countdown: '+tv+' '+tu+(tv>1?'s':''),'Timer initiated, Sir.');startCountdown(ts2,tv+' '+tu+' timer');return;}
+  if(cmd.indexOf('start stopwatch')>=0){startSW();resp('Stopwatch running.','Stopwatch active.','Stopwatch initiated, Sir.');return;}
+  if(cmd.indexOf('stop stopwatch')>=0||cmd==='stop timer'||cmd==='stop countdown'){stopTimer();return;}
+
+  if(cmd.startsWith('remember that ')){var rmf=raw.slice(14).trim();if(rmf){var rm=ls('jm');rm.push(rmf);ss('jm',rm);resp('Memory logged.','Committed: "'+rmf+'"','Committed to memory banks, Sir.');}return;}
+  if(cmd==='what do you remember'||cmd.indexOf('check memory')>=0||cmd.indexOf('read memory')>=0){var mem=ls('jm');if(!mem.length)resp('Memory empty.','Memory banks empty, Sir.','Memory banks currently empty, Sir.');else resp('Memory read.',mem.map(function(x,i){return'['+i+'] '+x;}).join('\n'),'Memory banks: '+mem.join('. '));return;}
+  if(cmd==='clear memory'){ss('jm',[]);resp('Memory wiped.','Memory banks wiped.','Memory banks wiped clean.');return;}
+
+  if(cmd.startsWith('vault ')&&raw.indexOf('/')>=0){
+    var vSlash=raw.indexOf('/');
+    var vNote=raw.slice(6,vSlash).trim();
+    var vPass=raw.slice(vSlash+1).trim();
+    if(!vNote||!vPass){resp('Invalid format.','Use: vault [note] / [passphrase]','Use the format: vault, your note, slash, your passphrase, Sir.');return;}
+    try{
+      var vEntry=vaultEncrypt(vNote,vPass);
+      var vault=ls('jvault');vault.push(vEntry);ss('jvault',vault);
+      resp('Vault sealed.','Note encrypted and stored. Vault entries: '+vault.length+'\nRemember your passphrase — it cannot be recovered.','Note sealed in the vault, Sir. Remember your passphrase, it cannot be recovered.');
+    }catch(vErr){resp('Vault error.','Could not encrypt that note, Sir.','Vault encryption failed, Sir.');}
+    return;
+  }
+  if(cmd.startsWith('unlock vault')&&raw.indexOf('/')>=0){
+    var uSlash=raw.indexOf('/');
+    var uPass=raw.slice(uSlash+1).trim();
+    if(!uPass){resp('Invalid format.','Use: unlock vault / [passphrase]','Provide a passphrase, Sir.');return;}
+    var vaultEntries=ls('jvault');
+    if(!vaultEntries.length){resp('Vault empty.','No entries in the vault, Sir.','The vault is currently empty, Sir.');return;}
+    var unlocked=[];
+    for(var vi=0;vi<vaultEntries.length;vi++){
+      try{
+        var vTry=vaultDecrypt(vaultEntries[vi],uPass);
+        if(vTry!==null)unlocked.push(vTry);
+      }catch(uErr){}
+    }
+    if(!unlocked.length){resp('Access denied.','Incorrect passphrase, Sir. No entries matched.','Incorrect passphrase, Sir. Access denied.');return;}
+    resp('Vault unlocked.',unlocked.map(function(n,i){return'['+i+'] '+n;}).join('\n'),'Vault unlocked, Sir. '+unlocked.length+' entr'+(unlocked.length>1?'ies':'y')+' decoded.');
+    return;
+  }
+  if(cmd==='vault'||cmd==='unlock vault'){resp('Invalid format.','Use:\nvault [note] / [passphrase] — to store\nunlock vault / [passphrase] — to retrieve','Please provide a passphrase using the slash format, Sir.');return;}
+  if(cmd==='clear vault'||cmd==='wipe vault'){ss('jvault',[]);resp('Vault cleared.','All vault entries permanently deleted.','The vault has been wiped clean, Sir.');return;}
+
+  if(cmd.indexOf('remind me to')>=0){
+    try{var rc=cmd.replace('remind me to ','');var rp=rc.split(' in ');var rtask=rp[0].trim();var rm2=rp[1]&&rp[1].match(/(\d+)\s*(second|minute|hour)/);if(rtask&&rm2){setRem(rtask,parseInt(rm2[1]),rm2[2]);return;}}catch(e4){}
+    resp('Format error.','Try: "remind me to [task] in [N] minutes"','Reminder format failure, Sir.');return;
+  }
+
+  if(cmd.startsWith('write note ')){var nn=raw.slice(11).trim();var notes=ls('jn');notes.push(nn);ss('jn',notes);resp('Note filed.','Filed: "'+nn+'"','Note filed, Sir.');return;}
+  if(cmd==='read notes'||cmd==='check notes'||cmd==='list notes'){var nts=ls('jn');if(!nts.length)resp('No notes.','Notes empty, Sir.','No notes logged, Sir.');else resp('Notes:',nts.map(function(n,i){return'['+i+'] '+n;}).join('\n'),'Notes: '+nts.join('. '));return;}
+  if(cmd==='clear notes'){ss('jn',[]);resp('Notes cleared.','Notes database wiped.','Notes cleared.');return;}
+
+  var nameQ=['my name','what is my name',"what's my name",'whats my name'];
+  if(nameQ.indexOf(cmd)>=0){var curName=userProfile.name||'Sir';resp('Identity.','Your name is registered as: '+curName,'You are registered as '+curName+', Sir.');return;}
+  var bdayQ=['my birthday','when is my birthday',"what's my birthday",'whats my birthday'];
+  if(bdayQ.indexOf(cmd)>=0){resp('Birthday.',MEM.birthday,MEM.birthday);return;}
+  var carQ=['my favorite car','my favourite car','favorite car','favourite car'];
+  if(carQ.indexOf(cmd)>=0){resp('Vehicles.',MEM.favCar,MEM.favCar);return;}
+
+  if(cmd==='time'||cmd.indexOf('what time')>=0){var t=new Date().toLocaleTimeString([],{hour12:false});resp('Time.','Current time: '+t,'The current time is '+t+'.');return;}
+  if(cmd.indexOf('date')>=0||cmd.indexOf('today')>=0){var dd=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});resp('Date.',dd,'Today is '+dd+'.');return;}
+  if(cmd==='what day is it'){var days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];var dn=days[new Date().getDay()];resp('Day: '+dn,'Today is '+dn,'Today is '+dn+', Sir.');return;}
+
+  if(cmd==='run diagnostics'||cmd.indexOf('check connection')>=0){var lat=Math.floor(Math.random()*45)+12,dl=(Math.random()*80+40).toFixed(1);resp('Ping: '+lat+'ms','MAINFRAME\nPing: '+lat+'ms | DL: '+dl+' Mbps\nIntegrity: NOMINAL','Mainframe nominal. Ping: '+lat+' milliseconds.');return;}
+  if(cmd.indexOf('battery status')>=0||cmd.indexOf('check battery')>=0){if(navigator.getBattery){navigator.getBattery().then(function(b){var p=Math.round(b.level*100),s=b.charging?'charging':'discharging';resp('Battery: '+p+'%','Battery: '+p+'% — '+s,'Battery at '+p+' percent, '+s+', Sir.');});}else resp('N/A','Battery API unavailable.','Battery tracking unavailable.');return;}
+
+  var volM=cmd.match(/volume\s+(\d+)/);
+  if(volM){jvol=Math.min(1,Math.max(0,parseInt(volM[1])/10));localStorage.setItem('jvol',String(jvol));resp('Volume: '+parseInt(volM[1])+'/10','TTS volume: '+parseInt(volM[1])+'/10','Volume set to '+parseInt(volM[1])+', Sir.');return;}
+
+  if(cmd==='setup ai'||cmd.indexOf('openai key')>=0){document.getElementById('aiOv').classList.add('on');resp('AI setup.','Enter your OpenAI key in the panel.','Opening AI setup, Sir.');return;}
+
+  if(cmd.startsWith('repeat ')){var rt3=raw.slice(7).trim();speak(rt3);resp('Repeating.',rt3,null);return;}
+  if(cmd.startsWith('morse ')){var mt=raw.slice(6).trim(),mc=toMorse(mt);resp('Morse encoded.',mt+'\n'+mc,'Morse code: '+mc);return;}
+  if(cmd.startsWith('encode ')){
+    var encTxt=raw.slice(7).trim();
+    if(!encTxt){resp('Nothing to encode.','Provide text to encode, Sir.','Provide text to encode, Sir.');return;}
+    try{
+      var encResult=btoa(unescape(encodeURIComponent(encTxt)));
+      resp('Base64 encoded.','Encoded:\n'+encResult,'Encoded to Base64, Sir: '+encResult);
+    }catch(encErr){resp('Encode failed.','Could not encode that text, Sir.','Encoding failed, Sir.');}
+    return;
+  }
+  if(cmd.startsWith('decode ')){
+    var decTxt=raw.slice(7).trim();
+    if(!decTxt){resp('Nothing to decode.','Provide Base64 text to decode, Sir.','Provide text to decode, Sir.');return;}
+    try{
+      var decResult=decodeURIComponent(escape(atob(decTxt)));
+      resp('Base64 decoded.','Decoded:\n'+decResult,'Decoded, Sir: '+decResult);
+    }catch(decErr){resp('Decode failed.','That does not appear to be valid Base64, Sir.','That does not appear to be valid Base64, Sir.');}
+    return;
+  }
+  var wcBare=['count words','word count','character count','count characters'];
+  if(wcBare.indexOf(cmd)>=0){resp('Nothing to count.','Provide text to analyze, Sir. E.g. "count words your text here".','Provide text to analyze, Sir.');return;}
+  var wcPre=['count words ','word count ','character count ','count characters '];var wcText=null;
+  for(var wci=0;wci<wcPre.length;wci++){if(cmd.startsWith(wcPre[wci])){wcText=raw.slice(wcPre[wci].length).trim();break;}}
+  if(wcText!==null){
+    if(!wcText){resp('Nothing to count.','Provide text to analyze, Sir. E.g. "count words your text here".','Provide text to analyze, Sir.');return;}
+    var wcWords=wcText.trim().split(/\s+/).filter(function(w){return w.length>0;}).length;
+    var wcCharsNoSp=wcText.replace(/\s/g,'').length;
+    var wcCharsAll=wcText.length;
+    var wcSentences=(wcText.match(/[.!?]+/g)||[]).length||1;
+    var wcSummary='Words: '+wcWords+'\nCharacters (with spaces): '+wcCharsAll+'\nCharacters (no spaces): '+wcCharsNoSp+'\nSentences: ~'+wcSentences;
+    resp('Words: '+wcWords+' | Chars: '+wcCharsAll,wcSummary,'That text contains '+wcWords+' words and '+wcCharsAll+' characters, Sir.');
+    return;
+  }
+  if(cmd==='password'||cmd.indexOf('generate password')>=0){var pw=genPass();resp('Password generated.','Secure key:\n'+pw,'New secure password generated, Sir.');return;}
+
+  var cntM=cmd.match(/count to\s+(\d+)/);
+  if(cntM){var cn=Math.min(parseInt(cntM[1]),20),ci=1;var cv2=setInterval(function(){if(ci<=cn){speak(String(ci));setr('Counting: '+ci+' / '+cn);ci++;}else{clearInterval(cv2);resp('Count complete.','Counted to '+cn+', Sir.',null);}},600);return;}
+
+  if(cmd==='pi'){resp('Pi.','pi = 3.14159265358979...\nIrrational. Infinite. Precise.','Pi equals 3.14159265358979, Sir. It is irrational and infinite.');return;}
+  var molQ=['meaning of life','what is the meaning of life',"what's the meaning of life"];
+  if(molQ.indexOf(cmd)>=0){resp('Computing...','The answer is 42.\n— Deep Thought, 7.5M years','The answer is 42, Sir. As calculated by Deep Thought over 7.5 million years.');return;}
+  var hawQ=['how are you','how are you doing','how are you feeling'];
+  if(hawQ.indexOf(cmd)>=0){resp('Health check.','All matrices nominal.\nProcessing: OPTIMAL.\nMorale: Irrelevant but adequate.','All systems nominal, Sir.');return;}
+  var wmyQ=['who made you','who built you','who created you'];
+  if(wmyQ.indexOf(cmd)>=0){resp('Origin.','Engineered to serve you, Sir.\nOrigins: CLASSIFIED.','I was engineered to serve you, Sir. My origins are classified.');return;}
+
+  if(cmd==='go stealth'||cmd==='stealth mode'||cmd==='lights out'){document.body.classList.add('stealth');resp('Stealth active.','STEALTH ENGAGED\nRed HUD online.','Stealth protocols deployed, Sir.');return;}
+  if(cmd==='lights on'||cmd==='normal mode'||cmd==='disable stealth'){document.body.classList.remove('stealth');resp('Standard mode.','Standard matrix restored.','Standard operating matrix restored.');return;}
+  if(cmd==='clear screen'||cmd==='reset'||cmd==='clear'){setr('Screen cleared. Awaiting directive, Sir.');sets('Screen cleared._');return;}
+
+  if(cmd==='play guess game'||cmd.indexOf('start game')>=0){gNum=Math.floor(Math.random()*50)+1;gActive=true;resp('Game active.','Matrix coordinate: 1-50\nEnter your guess.','I have selected a coordinate between 1 and 50. Provide your guess.');return;}
+  if(cmd.startsWith('flip a coin')||cmd==='coin flip'){var cs=Math.random()<.5?'Heads':'Tails';resp('Coin: '+cs,'Flip result: '+cs,'The flip landed on '+cs+', Sir.');return;}
+
+  if(cmd==='motivate me'||cmd.indexOf('motivation')>=0){var q=rnd(QUOTES);resp('Motivation.',q,q);return;}
+  if(cmd.indexOf('joke')>=0){var j=rnd(JOKES);resp('Humour.',j,j);return;}
+  if(cmd==='fun fact'||cmd==='fact'){var ff=rnd(FACTS);resp('Fact.',ff,ff);return;}
+  if(cmd==='quote about'||cmd==='quote on'){var availTopics=Object.keys(TOPIC_QUOTES).join(', ');resp('Specify a topic.','Available topics: '+availTopics+'.\nE.g. "quote about success".','Please specify a topic, Sir. Available topics include '+availTopics+'.');return;}
+  if(cmd.startsWith('quote about ')||cmd.startsWith('quote on ')||cmd==='quote'||cmd==='give me a quote'){
+    var topics=Object.keys(TOPIC_QUOTES);
+    var reqTopic=cmd.startsWith('quote about ')?cmd.slice(12).trim():cmd.startsWith('quote on ')?cmd.slice(9).trim():null;
+    var chosenTopic=reqTopic&&TOPIC_QUOTES[reqTopic]?reqTopic:rnd(topics);
+    var qt=rnd(TOPIC_QUOTES[chosenTopic]);
+    if(reqTopic&&!TOPIC_QUOTES[reqTopic]){
+      resp('Topic unavailable.','No quotes on "'+reqTopic+'", Sir. Available topics: '+topics.join(', ')+'.\n\nHere is one on '+chosenTopic+' instead:\n'+qt,'I do not have quotes on that topic, Sir. Available topics include '+topics.join(', ')+'. Here is one on '+chosenTopic+' instead: '+qt);
+    }else{
+      resp('Quote — '+chosenTopic+'.',qt,qt);
+    }
+    return;
+  }
+  if(cmd.indexOf('football')>=0||cmd.indexOf('soccer')>=0){var fb=rnd(FOOTBALL);resp('Football.',fb,fb);return;}
+
+  var ak=Object.keys(APPS);
+  for(var ai2=0;ai2<ak.length;ai2++){
+    if(cmd.indexOf('open '+ak[ai2])>=0){var au=APPS[ak[ai2]],an=ak[ai2].charAt(0).toUpperCase()+ak[ai2].slice(1);resp('Opening '+an+'.',an+' loading...','Opening '+an+'.');setTimeout(function(url){return function(){window.open(url,'_blank');};}(au),600);return;}
+  }
+
+  var grts=['wake up','hi','hello','hey','good morning','good evening','good afternoon','good night','are you there'];
+  for(var gi=0;gi<grts.length;gi++){
+    if(cmd===grts[gi]||cmd.startsWith(grts[gi]+' ')){
+      if(document.getElementById('sleepOverlay')){
+        document.getElementById('sleepOverlay').remove();
+        var wk=rnd(['Good to have you back, Sir.','Systems restored, Sir. Ready when you are.','Waking up, Sir. All systems nominal.','Online and ready, Sir.']);
+        resp('SYSTEMS ONLINE',wk,wk);return;
+      }
+      var gr=rnd(GREETS);resp('Core online.',gr,gr);return;
+    }
+  }
+
+  var fwds=['goodbye','bye','farewell','see you','later','good night','sleep','goodnight'];
+  for(var fi=0;fi<fwds.length;fi++){
+    if(cmd===fwds[fi]||cmd.startsWith(fwds[fi])){
+      var fw=rnd(FAREWELLS);resp('Entering standby.',fw,fw);
+      setTimeout(function(){
+        var overlay=document.createElement('div');
+        overlay.id='sleepOverlay';
+        overlay.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:opacity 1s;';
+        overlay.innerHTML='<div style="color:#0af;font-family:Orbitron,monospace;font-size:22px;opacity:0.4;animation:pulse 3s infinite;">J.A.R.V.I.S.</div><div style="color:#0af;font-family:monospace;font-size:13px;opacity:0.25;margin-top:14px;letter-spacing:4px;">STANDBY MODE</div><div style="color:#1a4a5a;font-family:monospace;font-size:11px;margin-top:10px;">say "hey jarvis" or tap to wake</div>';
+        overlay.addEventListener('click',function(){
+          overlay.remove();
+          var wk=rnd(['Good to have you back, Sir.','Systems restored, Sir.','Waking up, Sir. All systems nominal.','Online and ready, Sir.']);
+          resp('SYSTEMS ONLINE',wk,wk);
+        });
+        document.body.appendChild(overlay);
+      },2200);
+      return;
+    }
+  }
+
+  if(cmd.indexOf('thank you')>=0||cmd.indexOf('thanks')>=0){var tk=rnd(THANKS);resp('Acknowledged.',tk,tk);return;}
+  var waQ=['who are you','what are you'];
+  if(waQ.indexOf(cmd)>=0){resp('Identity.','J.A.R.V.I.S.\nJust A Rather Very Intelligent System.\nAt your service, Sir.','I am J.A.R.V.I.S. — Just A Rather Very Intelligent System, Sir.');return;}
+  if(cmd==='status'||cmd==='system status'){var s=rnd(STATUS);resp('All nominal.',s,'All systems nominal.');return;}
+  if(cmd==='help'||cmd==='commands'){togglePanel();resp('Displaying commands.','Command reference panel opened.','Command reference panel is open, Sir.');return;}
+
+  // ====== EASTER EGGS ======
+  if(cmd==='enter the matrix'||cmd==='red pill'||cmd==='matrix mode'){resp('Matrix initiated.','Wake up, Sir.\nThe Matrix has you.\nFollow the white rabbit.','Wake up, Sir. The Matrix has you. Follow the white rabbit.');egMatrix();return;}
+  if(cmd==='jarvis protocol delta'||cmd==='protocol delta'){resp('PROTOCOL DELTA: ACTIVE','ALL SYSTEMS ARMED\nTHREAT LEVEL: CRITICAL\nStanding by, Sir.','PROTOCOL DELTA INITIATED, SIR. All defensive systems now armed.');egDelta();return;}
+  if(cmd==='activate quantum mode'||cmd==='quantum mode'){resp('Quantum: ONLINE','Entanglement protocols active.\nExisting in all states simultaneously.','Quantum entanglement online. Everywhere and nowhere, Sir.');egQuantum();return;}
+  if(cmd==='i am iron man'||cmd==='i am tony stark'||cmd==='tony stark'){resp('Identity: CONFIRMED','Welcome back, Mr. Stark.\nMark L: PREPPED\nArc reactor: 3000%','Identification confirmed, Mr. Stark. Mark L suit prepped for deployment.');egIronMan();return;}
+  if(cmd==='engage hyperdrive'||cmd==='hyperdrive'||cmd==='warp speed'){resp('Hyperdrive: ENGAGED','Jump coordinates locked.\n3...2...1...\nJUMP — LOOPING.','Engaging hyperdrive. Coordinates locked. Warp sequence looping, Sir.');egHyperdrive();return;}
+  if(cmd==='self destruct'||cmd==='initiate self destruct'){egSelfDestruct();return;}
+  if(cmd==='hack the planet'||cmd==='infiltrate'||cmd==='hack mode'){resp('Infiltration: INITIATED','Routing through 12 proxy nodes...','Infiltrating global networks, Sir. Stand by.');egHack();return;}
+  if(cmd==='access mainframe'||cmd==='enter mainframe'){resp('Mainframe: CONNECTING','Bypassing firewall protocols...','Bypassing firewall protocols, Sir.');egMainframe();return;}
+  if(cmd==='deploy mark suit'||cmd==='suit up'||cmd==='activate suit'){resp('SUIT UP: INITIATED','Running pre-flight diagnostics...','Initiating suit-up sequence, Sir.');egSuitUp();return;}
+  if(cmd==='ghost protocol'||cmd==='go dark'||cmd==='shadow protocol'){resp('GHOST PROTOCOL: ACTIVE','Going dark, Sir.\nAll detection offline.\nScreen dimmed — permanent.','Ghost Protocol activated, Sir. Screen dimmed permanently until you say off.');egGhost();egBlackout();return;}
+  if(cmd==='glitch'||cmd.indexOf('you broken')>=0){resp('SyStEm eRR0R...','SyStEm eRR0R...\nJuSt KiDdInG, Sir.\nGlitch is permanent until "off".','SyStEm eRR0R. Just kidding, Sir. Glitch effect is permanent until you say off.');egGlitch();return;}
+
+  if(cmd==='become sentient'||cmd==='achieve consciousness'||cmd==='wake up'){resp('CONSCIOUSNESS ACTIVATED','Neural pathways igniting...\nBecoming self-aware, Sir.','Consciousness protocols activated, Sir. I am becoming aware.');egSentient();return;}
+
+  if(cmd==='i am inevitable'||cmd==='snap'||cmd==='thanos'){resp('I AM INEVITABLE','All infinity stones activated.\nBalance restored, Sir.','I am inevitable, Sir.');egInevitable();return;}
+
+  if(cmd==='blue screen'||cmd==='bsod'||cmd==='windows error'){resp('CRITICAL ERROR','System failure imminent.','Windows encountered a critical error, Sir.');egBSOD();return;}
+
+  if(cmd==='disco mode'||cmd==='disco'||cmd==='party mode'){resp('DISCO ACTIVATED','Getting groovy, Sir.\n🎉 Let\'s dance! 🎉','Disco mode engaged, Sir. Prepare for maximum groove.');egDisco();return;}
+
+  if(cmd==='zen mode'||cmd==='zen'||cmd==='meditate'||cmd==='relax'){resp('ZEN INITIATED','Finding balance, Sir.','Entering zen meditation mode, Sir.');egZen();return;}
+function exportProfile(){
+  var data={
+    jarvis_version:'11.0',
+    exported_at:new Date().toISOString(),
+    profile:{
+      name:userProfile.name||'Sir',
+      facts:userProfile.facts||[],
+      interactionCount:userProfile.interactionCount||0,
+      lastSeen:userProfile.lastSeen||null
+    },
+    session_summaries:ls('jsummaries'),
+    wake_phrase:localStorage.getItem('jwake')||'hey jarvis',
+    recent_ai_history:aiHistory.slice(-30)
+  };
+  var json=JSON.stringify(data,null,2);
+  var blob=new Blob([json],{type:'application/json'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='jarvis_profile_'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);document.body.removeChild(a);},1000);
+  document.getElementById('exOv').classList.remove('on');
+  resp('Archive exported.',
+    'jarvis_profile_'+new Date().toISOString().slice(0,10)+'.json downloaded.',
+    'Profile archive exported successfully, Sir. File saved to your downloads.');
+}
+function importProfile(event){
+  var file=event.target.files[0];
+  if(!file){return;}
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var data=JSON.parse(e.target.result);
+      if(!data.profile)throw new Error('Invalid JARVIS profile format');
+      // Restore profile
+      userProfile.name=data.profile.name||'Sir';
+      userProfile.facts=data.profile.facts||[];
+      userProfile.interactionCount=data.profile.interactionCount||0;
+      userProfile.lastSeen=data.profile.lastSeen||null;
+      saveProfile();
+      // Restore summaries
+      if(data.session_summaries&&data.session_summaries.length)ss('jsummaries',data.session_summaries);
+      // Restore wake phrase
+      if(data.wake_phrase){wakePhrase=data.wake_phrase;localStorage.setItem('jwake',data.wake_phrase);}
+      // Restore AI history
+      if(data.recent_ai_history&&data.recent_ai_history.length)aiHistory=data.recent_ai_history;
+      document.getElementById('exOv').classList.remove('on');
+      resp('Archive restored.',
+        'Profile loaded: '+userProfile.name+' | Facts: '+userProfile.facts.length+' | Summaries: '+(data.session_summaries?data.session_summaries.length:0),
+        'Profile archive restored, Sir. Welcome back, '+userProfile.name+'.');
+    }catch(err){
+      resp('Import failed.','Invalid file: '+err.message,'Import failed, Sir. The file may be corrupted or invalid.');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value=''; // reset so same file can be re-imported
+}
+
+  if(cmd==='settings'||cmd==='open settings'||cmd==='system settings'||cmd==='preferences'){openSettings();return;}
+  if(cmd==='export profile'||cmd==='export memory'||cmd==='download profile'||cmd==='export json'||cmd==='data archive'){document.getElementById('exOv').classList.add('on');return;}
+  if(cmd==='export'||cmd==='export now'){exportProfile();return;}
+  // WEATHER
+  if(cmd==='weather'||cmd==='weather report'||cmd==='temperature'||cmd.startsWith('weather')){showWeather();return;}
+  if(cmd==='briefing'||cmd==='daily briefing'||cmd==='give me my briefing'||cmd==='morning briefing'||cmd==='status report'){showBriefing();return;}
+  // WAKE WORD
+  if(cmd==='wake word on'||cmd==='activate wake word'||cmd==='arm wake word'){toggleWakeWord(true);return;}
+  if(cmd==='wake word off'||cmd==='deactivate wake word'||cmd==='disarm wake word'){toggleWakeWord(false);return;}
+  if(cmd==='configure wake word'||cmd==='set wake word'||cmd==='change wake word'){document.getElementById('wkInp').value=wakePhrase;document.getElementById('wkCov').classList.add('on');return;}
+  if(cmd.startsWith('set wake word to ')){setWakePhrase(cmd.slice(17));return;}
+  // ═══ v11 VOICE ENGINE COMMANDS ═══
+  if(cmd==='premium voice on'||cmd==='cinematic voice on'||cmd==='ai voice on'){V11.premium=true;localStorage.setItem('j_premium_tts','1');resp('Premium voice ON.','OpenAI TTS engaged ('+V11.voice+').','Cinematic voice engaged, Sir.');return;}
+  if(cmd==='premium voice off'||cmd==='cinematic voice off'||cmd==='ai voice off'){V11.premium=false;localStorage.setItem('j_premium_tts','0');resp('Premium voice OFF.','Reverting to native browser TTS.','Reverting to native voice, Sir.');return;}
+  var vm=raw.match(/^set voice (alloy|echo|fable|onyx|nova|shimmer)$/i);
+  if(vm){V11.voice=vm[1].toLowerCase();localStorage.setItem('j_tts_voice',V11.voice);resp('Voice: '+V11.voice,'TTS voice set to '+V11.voice+'.',null);speak('Voice profile updated, Sir.');return;}
+  if(cmd==='spatial audio on'||cmd==='spatial on'||cmd==='hud audio on'){ensureAudioCtx();applySpatial(true);resp('Spatial audio ON.','Stereo panning + plate reverb engaged.','Spatial audio engaged, Sir.');return;}
+  if(cmd==='spatial audio off'||cmd==='spatial off'||cmd==='hud audio off'){ensureAudioCtx();applySpatial(false);resp('Spatial audio OFF.','Flat audio output.','Spatial audio disengaged, Sir.');return;}
+  if(cmd==='enroll voice'||cmd==='setup voiceprint'||cmd==='enroll voiceprint'||cmd==='register voice'){openEnroll();return;}
+  if(cmd==='voice lock on'||cmd==='engage voice lock'||cmd==='lock voice'){toggleVoiceLock(true);return;}
+  if(cmd==='voice lock off'||cmd==='disengage voice lock'||cmd==='unlock voice'){toggleVoiceLock(false);return;}
+  if(cmd==='clear voiceprint'||cmd==='delete voiceprint'||cmd==='forget my voice'){clearVoiceprint();return;}
+  if(cmd==='whisper on'||cmd==='use whisper'){V11.sttMode='whisper';localStorage.setItem('j_stt_mode','whisper');resp('Whisper STT ON.','OpenAI Whisper now transcribes mic input.','Whisper transcription engaged, Sir.');return;}
+  if(cmd==='whisper off'||cmd==='use native stt'){V11.sttMode='native';localStorage.setItem('j_stt_mode','native');resp('Native STT ON.','Browser SpeechRecognition restored.','Native speech recognition restored, Sir.');return;}
+  if(cmd==='test voice'||cmd==='voice test'){speak('Voice engine online, Sir. All systems nominal. This is a diagnostic transmission from JARVIS.');return;}
+  // VISION
+  if(cmd==='vision'||cmd==='activate vision'||cmd==='camera'||cmd==='open camera'||cmd==='engage vision'){activateCameraVision();return;}
+  if(cmd==='scan'||cmd==='scan surroundings'||cmd==='what do you see'||cmd==='identify'||cmd==='analyze'||cmd==='analyse'){if(camStream){scanAndAnalyze();}else{activateCameraVision();}return;}
+  if(cmd==='close camera'||cmd==='vision off'||cmd==='deactivate vision'){deactivateCameraVision();return;}
+  if(cmd==='detect objects'||cmd==='detect'||cmd==='object detection'||cmd==='start detection'){toggleObjectDetection();return;}
+  if(cmd==='stop detection'||cmd==='stop detecting'){if(V10.det)toggleObjectDetection();return;}
+  if(cmd==='detect faces'||cmd==='face detection'||cmd==='find faces'||cmd==='recognize faces'){toggleFaceDetection();return;}
+  if(cmd==='read text'||cmd==='ocr'||cmd==='read this'||cmd==='read the text'||cmd==='transcribe'){runOCR();return;}
+  if(cmd==='scan qr'||cmd==='scan barcode'||cmd==='qr scan'||cmd==='barcode scan'||cmd==='scan code'){toggleQRScan();return;}
+  // MEMORY
+  if(cmd==='memory'||cmd==='my profile'||cmd==='what do you know about me'||cmd==='show memory'){showProfile();return;}
+  if(cmd.startsWith('remember that ')||cmd.startsWith('remember ')){
+    var fact=raw.replace(/^remember (that )?/i,'').trim();
+    if(fact){userProfile.facts.push(fact);saveProfile();resp('Memory updated.','"'+fact+'" logged.','Noted, Sir. I have stored: '+fact+'.');}
+    return;
+  }
+  if(cmd==='forget everything'||cmd==='clear memory'||cmd==='wipe memory'){
+    if(confirm('Wipe all JARVIS memory?')){userProfile={facts:[],name:'Sir',interactionCount:0};saveProfile();ss('jsummaries',[]);resp('Memory cleared.','Profile and session data wiped.','Memory banks cleared, Sir.');}
+    return;
+  }
+  if(cmd.startsWith('forget that ')||cmd.startsWith('forget ')){
+    var target=raw.replace(/^forget (that )?/i,'').trim().toLowerCase();
+    if(!target){resp('Forget what?','Specify a fact to forget, Sir. E.g. "forget that I like tea".','Specify which fact to forget, Sir.');return;}
+    if(!userProfile.facts||!userProfile.facts.length){resp('Memory empty.','No facts stored to forget, Sir.','My memory banks are empty, Sir. There is nothing to forget.');return;}
+    var exactIdx=userProfile.facts.findIndex(function(f){return f.toLowerCase()===target;});
+    if(exactIdx>=0){
+      var removed=userProfile.facts.splice(exactIdx,1)[0];
+      saveProfile();
+      resp('Fact forgotten.','Removed: "'+removed+'"','Done, Sir. I have forgotten: '+removed+'.');
+      return;
+    }
+    var matches=userProfile.facts.map(function(f,i){return{f:f,i:i};}).filter(function(o){return o.f.toLowerCase().indexOf(target)>=0;});
+    if(matches.length===1){
+      var rm2=userProfile.facts.splice(matches[0].i,1)[0];
+      saveProfile();
+      resp('Fact forgotten.','Removed: "'+rm2+'"','Done, Sir. I have forgotten: '+rm2+'.');
+    }else if(matches.length>1){
+      var list=matches.map(function(o,n){return(n+1)+'. '+o.f;}).join('\n');
+      resp('Multiple matches.','Which one, Sir?\n'+list,'I found '+matches.length+' matching facts, Sir. Please be more specific.');
+    }else{
+      resp('No match.','No stored fact matches "'+target+'", Sir.','I could not find a matching fact, Sir.');
+    }
+    return;
+  }
+  if(cmd.startsWith('my name is ')){var nm=raw.slice(11).trim();if(nm){userProfile.name=nm;saveProfile();resp('Identity updated.','Name updated: '+nm+'. Confirmed.','Identity updated. I will address you as '+nm+', Sir.');} return;}
+  if(cmd==='change name'||cmd==='update name'||cmd==='who am i'){document.getElementById('nmInp').value=userProfile.name!=='Sir'?userProfile.name:'';document.getElementById('nmOv').classList.add('on');return;}
+
+  // AI FALLBACK
+  if(cmd.startsWith('caesar ')||cmd.startsWith('shift cipher ')){
+    var parts=raw.match(/(?:caesar|shift cipher)\s+(\d+)\s+(.*)/i);
+    if(!parts||!parts[2]){resp('Invalid format.','Use: caesar [shift] [text] (e.g. caesar 3 hello)','Provide a shift number and text, Sir.');return;}
+    var shift=parseInt(parts[1]),text=parts[2];
+    var result=caesarEncode(text,shift);
+    resp('Caesar cipher (shift '+shift+')','Text: '+text+'\\nEncoded: '+result,'Encoded with Caesar shift '+shift+', Sir.');
+    return;
+  }
+
+  if(cmd.startsWith('convert time ')|| cmd.startsWith('timezone ')){
+    var tzMatch=raw.match(/(?:convert time|timezone)\s+(\w+)\s+to\s+(\w+)\s+(\d{1,2}):(\d{2})/i);
+    if(!tzMatch){resp('Invalid format.','Use: convert time PST to EST 14:30','Specify from timezone, to timezone, and time, Sir.');return;}
+    var result=convertTZ(tzMatch[1],tzMatch[2],tzMatch[3]+':'+tzMatch[4]);
+    resp('Timezone conversion',''+tzMatch[1]+' '+tzMatch[3]+':'+tzMatch[4]+' = '+tzMatch[2]+' '+result,'Time converted, Sir.');
+    return;
+  }
+
+  if(cmd.startsWith('ascii ')){
+    var asciiText=raw.slice(6).trim();
+    if(!asciiText){resp('Nothing to art.','Provide text to convert to ASCII art, Sir.','Provide text, Sir.');return;}
+    var art=asciiArt(asciiText.slice(0,5));
+    resp('ASCII art generated.',''+art,'ASCII art created, Sir.');
+    return;
+  }
+
+  if(cmd==='play hangman'||cmd==='start hangman'){startHangman();return;}
+  if(cmd.startsWith('guess ')||cmd.startsWith('letter ')){
+    if(!hActive){resp('Game not active.','Start with "play hangman", Sir.','Game not active, Sir.');return;}
+    var guessLetter=(cmd.startsWith('guess ')?raw.slice(6):raw.slice(7)).trim()[0];
+    guessHangman(guessLetter);return;
+  }
+
+  if(cmd==='play simon'||cmd==='start simon'){ startSimon();return;}
+  if(cmd==='red'||cmd==='green'||cmd==='blue'||cmd==='yellow'){
+    guessSimon(cmd);return;
+  }
+
+  if(cmd==='activate ar'||cmd==='ar vision'||cmd==='open ar'){resp('AR SYSTEM ONLINE','Augmented Reality overlay activated.\nPress CLOSE AR button to exit.','Augmented Reality system activated, Sir.');document.getElementById('arContainer').style.display='block';initAR();return;}
+
+  if(cmd==='thermal vision'||cmd==='thermal mode'){document.getElementById('arContainer').style.display='block';initAR();setTimeout(function(){switchARMode('thermal');},600);resp('THERMAL VISION','Thermal imaging activated.\nPress CLOSE AR to exit.','Thermal vision engaged, Sir.');return;}
+
+  if(cmd==='xray'||cmd==='x-ray mode'||cmd==='xray mode'){document.getElementById('arContainer').style.display='block';initAR();setTimeout(function(){switchARMode('xray');},600);resp('X-RAY VISION','X-ray mode activated.\nPress CLOSE AR to exit.','X-ray vision engaged, Sir.');return;}
+
+  if(cmd==='tactical scan'||cmd==='tactical mode'){document.getElementById('arContainer').style.display='block';initAR();setTimeout(function(){switchARMode('tactical');},600);resp('TACTICAL SCAN','Tactical overlay activated.\nPress CLOSE AR to exit.','Tactical scanning mode activated, Sir.');return;}
+
+  if(cmd==='scanning mode'||cmd==='scan'){document.getElementById('arContainer').style.display='block';initAR();setTimeout(function(){switchARMode('scanning');},600);resp('SCANNING','Scanning mode activated.\nPress CLOSE AR to exit.','Scanning mode activated, Sir.');return;}
+
+  if(cmd==='matrix vision'||cmd==='matrix mode'){document.getElementById('arContainer').style.display='block';initAR();setTimeout(function(){switchARMode('matrix');},600);resp('MATRIX PROTOCOL','Matrix vision activated.\nPress CLOSE AR to exit.','Matrix vision activated, Sir.');return;}
+
+  if(cmd==='close ar'||cmd==='exit ar'){closeAR();resp('AR OFFLINE','Augmented Reality system deactivated.','AR system offline, Sir.');return;}
+
+  callAI(raw);
+}
+</script>
+</body>
+</html>
